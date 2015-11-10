@@ -1,0 +1,118 @@
+.search-jira .search-jira-dropdown {
+    position: absolute;
+    width: 100%
+}
+
+.search-jira .search-jira-dropdown ol {
+    list-style: none;
+    border-bottom: solid 1px #ccc
+}
+
+.search-jira .search-jira-dropdown .with-additional {
+    height: auto;
+    padding-top: 3px;
+    padding-bottom: 3px
+}
+
+.search-jira .search-jira-dropdown .active, .search-jira .search-jira-dropdown .active a.additional {
+    color: #FFF
+}
+
+.search-jira .search-jira-dropdown li a {
+    color: #333;
+    padding: 0
+}
+
+.search-jira .search-jira-dropdown li a.additional {
+    max-height: 26px;
+    line-height: 13px;
+    font-size: 11px;
+    padding-left: 30px;
+    padding-right: 20px;
+    color: #666;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal
+}
+
+.search-jira .search-jira-dropdown li span {
+    background-position: 6px center;
+    padding-left: 30px
+}
+
+.search-jira .search-jira-dropdown li span em {
+    font-style: normal
+}
+
+.search-jira .search-jira-dropdown li span:before {
+    color: #707070
+}
+
+.search-jira .search-jira-dropdown li.active span:before {
+    color: #ffffff
+}
+
+.search-jira .search-jira-query input {
+    max-width: none
+}
+
+.search-jira .search-jira-query {
+    float: left
+}
+
+.search-jira .search-jira-button {
+    float: left;
+    margin-left: 5px;
+    width: 38px;
+    height: 30px;
+    color: #707070
+}
+
+.search-jira-medium {
+    width: 283px
+}
+
+.search-jira-medium .search-jira-query {
+    width: 240px
+}
+
+.search-jira-medium .search-jira-dropdown {
+    width: 240px;
+    margin-left: -1px
+}
+
+.search-jira-large {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto
+}
+
+.search-jira-large .search-jira-query .aui-icon {
+    position: absolute;
+    top: 11px;
+    left: 9px;
+    color: #707070
+}
+
+.search-jira-large .search-jira-query .aui-icon-large {
+    width: 18px;
+    height: 18px
+}
+
+.search-jira-large .search-jira-query .aui-icon-large:before {
+    font-size: 18px;
+    margin-top: -9px
+}
+
+.search-jira-large .search-jira-query input {
+    padding: 2px 12px 2px 30px;
+    height: 40px;
+    font-size: 20px;
+    font-weight: normal;
+    line-height: 1.5;
+    position: relative
+}
+
+.search-jira-large .search-jira-query {
+    float: none
+}

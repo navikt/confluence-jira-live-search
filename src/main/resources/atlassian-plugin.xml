@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+        <param name="plugin-icon">images/pluginIcon.png</param>
+        <param name="plugin-logo">images/pluginLogo.png</param>
+    </plugin-info>
+
+    <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties"/>
+    <component-import key="i18nResolver" interface="com.atlassian.sal.api.message.I18nResolver"/>
+
+    <resource type="i18n" name="i18n" location="i18n/confluence-jira-live-search"/>
+    <resource type="download" name="images/" location="/images/" />
+
+    <!-- add our web resources -->
+    <web-resource key="confluence-jira-live-search-resources" name="confluence-jira-live-search Web Resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <transformation extension="less">
+            <transformer key="less-transformer"/>
+        </transformation>
+        <transformation extension="soy">
+            <transformer key="soyTransformer">
+                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
+            </transformer>
+        </transformation>
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+        <resource type="download" name="images/" location="/images"/>
+        <resource type="download" name="confluence-jira-live-search.css" location="/css/confluence-jira-live-search.css"/>
+        <resource type="download" name="confluence-jira-live-search.js" location="/js/confluence-jira-live-search.js"/>
+    </web-resource>
+
+    <macro name="jiralivesearch" class="no.nav.kiv.confluence.labs.macros.JiraLiveSearchMacro" key="jiralivesearch"/>
+
+    <xhtml-macro name="jiralivesearch" class="no.nav.kiv.confluence.labs.macros.JiraLiveSearchMacro"
+                 key="jiralivesearch-xhtml">
+        <category name="external-content"/>
+        <parameters>
+            <parameter name="project" type="string" required="true" />
+            <parameter name="issueType" type="string"/>
+            <parameter name="placeholder" type="string"/>
+            <parameter name="size" type="enum" default="medium">
+                <value name="medium"/>
+                <value name="large"/>
+            </parameter>
+        </parameters>
+    </xhtml-macro>
+
+</atlassian-plugin>

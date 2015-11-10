@@ -1,0 +1,37 @@
+#requireResource("confluence.web.resources:jquery")
+#requireResource("com.atlassian.auiplugin:aui-experimental-table-sortable")
+#requireResource("no.nav.kiv.confluence.labs.jira-live-search:jira-live-search-resources")
+
+
+#set($isLarge = $size == "large")
+
+<div class="search-jira #if($isLarge)search-jira-large#{else}search-jira-medium#end">
+    <div class="aui-dd-parent"></div>
+    <form class="aui aui-dd-parent" name="livesearchForm">
+        <fieldset class="search-jira-fields">
+            <div class="search-jira-query">
+                <input id="search" class="text" type="text" name="queryString" autocomplete="off"
+                       placeholder="$!{placeholder}">
+                #if($isLarge)
+                    <span class="aui-icon aui-icon-large aui-iconfont-search">$i18n.getText(
+                        'confluence.extra.livesearch.label')</span>
+                #end
+            </div>
+            #if(!$isLarge)
+                <button type="submit" class="search-jira-button aui-button">
+                    <span class="aui-icon aui-icon-small aui-iconfont-search">$i18n.getText(
+                        'confluence.extra.livesearch.label')</span>
+                </button>
+            #end
+            <input type="hidden" id="project" name="project" value="$!{project}">
+            <input type="hidden" id="issueType" name="issueType" value="$!{issueType}">
+        </fieldset>
+    </form>
+</div>
+<br/>
+<div>
+    <table id="search-jira-results" class="aui aui-table-sortable" style="margin-top: 25px;"></table>
+</div>
+
+
+
