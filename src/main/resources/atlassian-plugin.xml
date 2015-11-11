@@ -34,11 +34,21 @@
         <resource type="download" name="confluence-jira-live-search.js" location="/js/confluence-jira-live-search.js"/>
     </web-resource>
 
-    <macro name="jiralivesearch" class="no.nav.kiv.confluence.labs.macros.JiraLiveSearchMacro" key="jiralivesearch"/>
+    <macro name="jiralivesearch"
+           i18n-name-key="jiralivesearch-macro.name"
+           class="no.nav.kiv.confluence.labs.macros.JiraLiveSearchMacro"
+           key="jiralivesearch-macro"
+           icon="/download/resources/${project.groupId}.${project.artifactId}/images/navMacroLogo.png"/>
 
-    <xhtml-macro name="jiralivesearch" class="no.nav.kiv.confluence.labs.macros.JiraLiveSearchMacro"
-                 key="jiralivesearch-xhtml">
+    <xhtml-macro name="jiralivesearch"
+                 i18n-name-key="jiralivesearch-macro.name"
+                 class="no.nav.kiv.confluence.labs.macros.JiraLiveSearchMacro"
+                 key="jiralivesearch"
+                 icon="/download/resources/${project.groupId}.${project.artifactId}/images/navMacroLogo.png">
+
+        <alias>jira-live-search</alias>
         <category name="external-content"/>
+
         <parameters>
             <parameter name="project" type="string" required="true" />
             <parameter name="issueType" type="string"/>
