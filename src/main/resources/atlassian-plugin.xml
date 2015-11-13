@@ -18,6 +18,7 @@
     <!-- add our web resources -->
     <web-resource key="confluence-jira-live-search-resources" name="confluence-jira-live-search Web Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <dependency>no.nav.kiv.confluence.labs.confluence-commons:sugarjs</dependency>
         <transformation extension="less">
             <transformer key="less-transformer"/>
         </transformation>
@@ -32,6 +33,27 @@
         <resource type="download" name="images/" location="/images"/>
         <resource type="download" name="confluence-jira-live-search.css" location="/css/confluence-jira-live-search.css"/>
         <resource type="download" name="confluence-jira-live-search.js" location="/js/confluence-jira-live-search.js"/>
+    </web-resource>
+
+    <!-- add our web resources -->
+    <web-resource key="advanced-resources" name="Advanced Web Resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <dependency>no.nav.kiv.confluence.labs.confluence-commons:sugarjs</dependency>
+        <transformation extension="less">
+            <transformer key="less-transformer"/>
+        </transformation>
+        <transformation extension="soy">
+            <transformer key="soyTransformer">
+                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
+            </transformer>
+        </transformation>
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+        <resource type="download" name="images/" location="/images"/>
+        <resource type="download" name="confluence-jira-live-search.css" location="/css/confluence-jira-live-search.css"/>
+        <resource type="download" name="advanced.js" location="/js/advanced.js"/>
+        <resource type="download" name="advanced-soy.js" location="/soy/advanced.soy"/>
     </web-resource>
 
     <macro name="jiralivesearch"
@@ -50,13 +72,18 @@
         <category name="external-content"/>
 
         <parameters>
-            <parameter name="project" type="string" required="true" />
-            <parameter name="issueType" type="string"/>
+            <parameter name="project" type="string" multiple="true" required="true" />
+            <parameter name="issueType" type="string" required="true" />
+            <parameter name="status" type="string" multiple="true" />
+            <parameter name="component" type="string" multiple="true" />
+            <parameter name="searchInFields" type="string" multiple="true" />
+            <parameter name="showLabeledFields" type="string" multiple="true"/>
             <parameter name="placeholder" type="string"/>
             <parameter name="size" type="enum" default="medium">
                 <value name="medium"/>
                 <value name="large"/>
             </parameter>
+            <parameter name="advanced" type="boolean" default="false"/>
         </parameters>
     </xhtml-macro>
 

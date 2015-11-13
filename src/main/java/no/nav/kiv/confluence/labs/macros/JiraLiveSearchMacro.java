@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * User: Michal J. Sladek
@@ -25,30 +26,50 @@ public class JiraLiveSearchMacro extends BaseMacro implements Macro {
 
     private static final Logger LOG = LoggerFactory.getLogger(JiraLiveSearchMacro.class);
 
-    public static final String SPACE_NAME = "space name";
     public static final String MEDIUM_SIZE = "medium";
-    public static final String CONF_ALL = "conf_all";
-    public static final String SELF = "@self";
 
     @Override
     public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException {
         logExecution(conversionContext);
 
         String project = parameters.get("project");
+        String status = parameters.get("status");
+        String component = parameters.get("component");
 
-        String size = parameters.get("size");
-        if (StringUtils.isBlank(size)) size = MEDIUM_SIZE;
 
         String issueType = parameters.get("issueType");
         String placeholder = parameters.get("placeholder");
 
+        String searchInFields = parameters.get("searchInFields");
+
+        String showLabeledFields = parameters.get("showLabeledFields");
+        if (StringUtils.isBlank(showLabeledFields)) {
+            showLabeledFields = searchInFields;
+        }
+
+        String size = parameters.get("size");
+        if (StringUtils.isBlank(size)) size = MEDIUM_SIZE;
+
         final Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
 
+        contextMap.put("id", UUID.randomUUID().toString());
 
-        contextMap.put("project", project);
+        contextMap.put("project", project.trim().toUpperCase());
+        contextMap.put("status", (null != status ? status.trim() : ""));
+        contextMap.put("component", (null != component ? component.trim() : ""));
+
+        contextMap.put("searchInFields", (null != searchInFields ? searchInFields.trim() : ""));
+        contextMap.put("showLabeledFields", (null != showLabeledFields ? showLabeledFields.trim() : ""));
+
         contextMap.put("issueType", issueType);
         contextMap.put("size", size);
         contextMap.put("placeholder", placeholder);
+        final String advanced = parameters.get("advanced");
+        contextMap.put("advanced", advanced);
+
+        if(Boolean.parseBoolean(advanced)) {
+            return VelocityUtils.getRenderedTemplate("/templates/advanced.vm", contextMap);
+        }
 
         return VelocityUtils.getRenderedTemplate("/templates/livesearch.vm", contextMap);
     }

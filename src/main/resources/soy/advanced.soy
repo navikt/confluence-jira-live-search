@@ -1,0 +1,56 @@
+{namespace NAV.KIV.Templates.LiveSearch}
+
+/**
+* Table with search results
+* @param fieldKeys
+* @param issues
+* @param fieldNames
+*/
+{template .table}
+{if length(keys($issues)) != 0}
+<table id="search-jira-results" class="confluenceTable" style="table-layout: fixed; width: 100%; margin-top: 25px;">
+    <thead>
+    <tr>
+    {foreach $header in $fieldKeys}
+        {if $header == 'key'}
+            <th class="confluenceTh">Key</th>
+        {else}
+            <th class="confluenceTh">{$fieldNames[$header]}</th>
+        {/if}
+    {/foreach}
+    </tr>
+    </thead>
+    <tbody>
+    {foreach $issueKey in keys($issues)}
+    {let $issue: $issues[$issueKey] /}
+    <tr>
+        {foreach $header in $fieldKeys}
+            {if $header == 'key'}
+                <td class="confluenceTd" style="word-wrap: break-word;"><a href="http://jira.adeo.no/browse/{$issue.key}" target="_new">{$issue.key}</a></td>
+            {else}
+                {let $fieldValue: $issue.fields[$header] /}
+                {if $fieldValue == null}
+                    <td class="confluenceTd" style="word-wrap: break-word;">&nbsp;</td>
+                {elseif $fieldValue.value != null}
+                    <td class="confluenceTd" style="word-wrap: break-word;">{$fieldValue.value}</td>
+                {elseif $fieldValue.displayName != null}
+                    <td class="confluenceTd" style="word-wrap: break-word;">{$fieldValue.displayName}</td>
+                {elseif $fieldValue.name != null}
+                    <td class="confluenceTd" style="word-wrap: break-word;">{$fieldValue.name}</td>
+                {else}
+                    <td class="confluenceTd" style="word-wrap: break-word;">{$fieldValue}</td>
+                {/if}
+            {/if}
+        {/foreach}
+    </tr>
+    {/foreach}
+    </tbody>
+</table>
+{else}
+<div class="aui-message aui-message-warning">
+    <p class="title">
+        <strong>No issues found!</strong>
+    </p>
+</div>
+{/if}
+{/template}

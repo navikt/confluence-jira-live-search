@@ -8,7 +8,10 @@ AJS.toInit(function ($) {
             searchField = $('#search').val(),
             project = $('#project').val(),
             issueType = $('#issueType').val(),
-            fields = "summary, Tekst bokmål, Tekst nynorsk, Brukt i mal, Eier";
+            fields = ["summary", "Tekst bokmål", "Tekst nynorsk", "Brukt i mal", "Eier"];
+
+        var issueTypeArray = issueType.split(/\s*,\s*/g),
+            projectArray = project.split(/\s*,\s*/g);
 
         if (searchField.length > 2) {
 
@@ -19,25 +22,25 @@ AJS.toInit(function ($) {
             var count = 1;
 
             $.ajax({
-                url: "/rest/jiralivesearch/1/search",
+                url: "/rest/jirasearch/latest/search",
                 cache: false,
                 type: "POST",
                 dataType: "json",
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    searchString: encodeURIComponent(searchField),
-                    projectKey: encodeURIComponent(project),
-                    issueTypes: encodeURIComponent(issueType),
-                    fields: fields
+                    searchKeyword: encodeURIComponent(searchField),
+                    projectKeys: projectArray,
+                    issueTypes: issueTypeArray,
+                    searchInFields: fields
                 }),
                 success: function (data) {
-                    $.each($.parseJSON(data.value).issues, function (key, val) {
+                    $.each($.parseJSON(data.message).issues, function (key, val) {
 
                         output += '<td><a href="http://jira.adeo.no/browse/' + val.key + '" target="_new">' + val.key + '</a></td>'
                         output += '<td>' + val.fields.summary + '</td>'
                         output += '<td>' + escapeHtml(val.fields.customfield_15213).replace(/(?:\r\n|\r|\n)/g, '<br />') + '</td>'
                         output += '<td>' + val.fields.customfield_15214 + '</td>'
-                        output += '<td>' + val.fields.customfie|                        ld_15215.replace(/(?:\r\n|\r|\n)/g, '<br />'); + '</td>'
+                        output += '<td>' + val.fields.customfield_15215.replace(/(?:\r\n|\r|\n)/g, '<br />') + '</td>'
                         output += '<td>' + val.fields.customfield_10514 + '</td>'
 
                         output += '</tr><tr>'

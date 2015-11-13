@@ -1,6 +1,6 @@
 #requireResource("confluence.web.resources:jquery")
 #requireResource("com.atlassian.auiplugin:aui-experimental-table-sortable")
-#requireResource("no.nav.kiv.confluence.labs.jira-live-search:jira-live-search-resources")
+#requireResource("no.nav.kiv.confluence.labs.confluence-jira-live-search:confluence-jira-live-search-resources")
 
 
 #set($isLarge = $size == "large")

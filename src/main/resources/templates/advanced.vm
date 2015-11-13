@@ -1,0 +1,47 @@
+#if ($action.remoteUser)
+    $webResourceManager.requireResource("com.atlassian.auiplugin:aui-experimental-table-sortable")
+    $webResourceManager.requireResource("no.nav.kiv.confluence.labs.confluence-jira-live-search:advanced-resources")
+
+    #set ($isLarge = $size == "large")
+
+<div class="search-jira #if($isLarge)search-jira-large#{else}search-jira-medium#end">
+    <div class="aui-dd-parent"></div>
+    <form class="aui aui-dd-parent" name="livesearchForm" onsubmit="return false;">
+        <fieldset class="search-jira-fields">
+            <div class="search-jira-query">
+                <input id="search" class="text" type="text" name="queryString" autocomplete="off"
+                       placeholder="$!{placeholder}">
+                #if($isLarge)
+                    <span class="aui-icon aui-icon-large aui-iconfont-search">$i18n.getText(
+                        'confluence.extra.livesearch.label')</span>
+                #end
+            </div>
+            #if(!$isLarge)
+                <button type="submit" class="search-jira-button aui-button">
+                    <span class="aui-icon aui-icon-small aui-iconfont-search">$i18n.getText(
+                        'confluence.extra.livesearch.label')</span>
+                </button>
+            #end
+            <input type="hidden" id="project" name="project" value="$!{project}" />
+            <input type="hidden" id="status" name="project" value="$!{status}"/>
+            <input type="hidden" id="component" name="project" value="$!{component}"/>
+            <input type="hidden" id="searchInFields" name="project" value="$!{searchInFields}"/>
+            <input type="hidden" id="showLabeledFields" name="project" value="$!{showLabeledFields}"/>
+            <input type="hidden" id="issueType" name="issueType" value="$!{issueType}"/>
+            <input type="hidden" id="tableId" name="tableId" value="$!{id}"/>
+        </fieldset>
+    </form>
+</div>
+<br/>
+<div id="table-$!{id}"></div>
+#else
+<div class="aui-message aui-message-warning">
+    <p class="title">
+        <strong>Log in!</strong>
+    </p>
+    <p>Du må loge in til kunne bruke funksjonaliteten på denne sida!</p>
+</div>
+#end
+
+
+
