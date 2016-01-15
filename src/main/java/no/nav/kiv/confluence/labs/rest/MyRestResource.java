@@ -78,12 +78,12 @@ public class MyRestResource {
             return Response.ok(createJSONResponse(msg, response)).build();
 
         } catch (CredentialsRequiredException e) {
-            msg = "Failed to find issues with the request to " + requestPath + " got " + e.getClass().getName() + " with message: " + e.getMessage();
+            msg = "[CE] Failed to find issues with the request to " + requestPath + " got " + e.getClass().getName() + " with message: " + e.getMessage();
             if (log.isErrorEnabled()) {
                 log.error(msg, e);
             }
         } catch (ResponseException e) {
-            msg = "Failed to find issues with the request to " + requestPath + " got " + e.getClass().getName() + " with message: " + e.getMessage();
+            msg = "[RE] Failed to find issues with the request to " + requestPath + " got " + e.getClass().getName() + " with message: " + e.getMessage();
             if (log.isErrorEnabled()) {
                 log.error(msg, e);
             }

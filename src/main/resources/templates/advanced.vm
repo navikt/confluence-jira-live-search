@@ -29,8 +29,16 @@
             <input type="hidden" id="showLabeledFields" name="project" value="$!{showLabeledFields}"/>
             <input type="hidden" id="issueType" name="issueType" value="$!{issueType}"/>
             <input type="hidden" id="tableId" name="tableId" value="$!{id}"/>
+
+            <div class="field-group">
+                <label for="select-search-fields">Search in fields</label>
+                <select class="multi-select" size="1" multiple="multiple" id="select-search-fields" name="select-search-fields">
+                </select>
+                <div class="description">Select the fields in JIRA you want to search in.</div>
+            </div>
         </fieldset>
     </form>
+
 </div>
 <br/>
 <div id="table-$!{id}"></div>

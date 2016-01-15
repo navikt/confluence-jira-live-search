@@ -11,12 +11,14 @@ AJS.toInit(function ($) {
         id = $('input#tableId').val(),
 
         searchInFields = $('#searchInFields').val().toLowerCase(),
-        showLabeledFields = $('#showLabeledFields').val()
+        showLabeledFields = $('#showLabeledFields').val();
     //fixedReturnFields = ["summary", "key", "status"]
 
-    var searchFieldsArray = searchInFields.split(/\s*,\s*/g).map(function(elm) {
+    var config = initializeFields(project, issueType);
+
+    var /*searchFieldsArray = searchInFields.split(/\s*,\s*//*g).map(function(elm) {
             return (elm.has("customfield_") ? "cf[" + elm.split("_")[1] + "]" : elm);
-        }),
+        }),*/
         showFieldsArray = showLabeledFields.split(/\s*,\s*/g)/*.union(fixedReturnFields)*/,
         componentsArray = component.split(/\s*,\s*/g),
         statusArray = status.split(/\s*,\s*/g),
@@ -35,7 +37,9 @@ AJS.toInit(function ($) {
 
     /*    AJS.log(translationsArray);*/
 
-    //var config = initializeFields(project, issueType);
+
+
+
     //AJS.log(config);
 
     $('#search').keyup(function () {
@@ -47,6 +51,10 @@ AJS.toInit(function ($) {
         if (searchField.length > 2) {
             $searchButton.addClass("aui-icon-wait").removeClass("aui-iconfont-search");
             $("div.aui-dd-parent").html("");
+
+            var searchFieldsArray = getSelectedFieldsFrom("select#select-search-fields").map(function(elm) {
+                return (!isNaN(elm) ? "cf[" + elm + "]" : elm);
+            });
 
             $.ajax({
                 url: "/rest/jirasearch/latest/search",
@@ -121,43 +129,103 @@ AJS.toInit(function ($) {
         var fieldConfig = Object.extended();
 
         if (Object.has(metadata, 'projects')) {
-            Object.keys(metadata.projects[0].issuetypes[0].fields, function (key, field) {
-                AJS.log("field: " + field.name + " [" + key + "]")
+            var searchFields = [];
 
-                var searchField = searchFieldsArray.find(function (elm) {
-                    return elm == field.name;
-                });
+            AJS.$.each(metadata.projects[0].issuetypes[0].fields, function(key, field) {
+                AJS.log("field: " + field);
 
-                var showField = showFieldsArray.find(function (elm) {
-                    return elm == field.name;
-                });
-
-                var fieldLabel = searchField || showField;
-                if (fieldLabel) {
-
-                    var newField = Object.extended();
-
-                    newField.key = key;
-                    newField.id = (key.has("customfield_") ? key.split("_")[1] : key);
-                    newField.showLabel = showFieldsArray[searchFieldsArray.findIndex(function (elm) {
-                        return elm == field.name
-                    })];
-
-                    if (newField.showLabel.has(":")) {
-                        newField.showLabel = newField.showLabel.split(":")[1];
-                    }
-
-                    AJS.log(newField);
-
-                    fieldConfig[field.name] = newField;
+                if (Object.has(field['schema'], 'system') && field.schema.system == "summary") {
+                    searchFields.push(field);
                 }
-
+                // Search in custom text fields
+                else if (Object.has(field['schema'], 'custom') && field.schema.custom.indexOf("text") > 0) {
+                    searchFields.push(field);
+                }
             });
+
+            initializeSelects(searchFields, "searchInFields");
         }
 
         return fieldConfig;
     }
 
+    function initializeSelects(fieldsArray, propertyKey) {
+        var savedSelectedValues = [];
+        AJS.$.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
+            function(data) {
+                savedSelectedValues = data.value;
+
+                if ("searchInFields" == propertyKey) {
+                    initializeSearchInFieldsSelect(savedSelectedValues, fieldsArray);
+                }
+            }
+        ).fail(
+            function(jqxhr, status, textStatus) {
+                if ($.parseJSON(jqxhr.responseText).statusCode == 404) {
+                    $.when(createPageProperty(AJS.params.pageId, propertyKey, [])).done(function() {
+                        initializeSelects(fieldsArray, propertyKey);
+                    });
+                }
+            }
+        );
+    }
+
+    function initializeSearchInFieldsSelect(selectedFieldsValueArray, fieldsArray) {
+        var $select = AJS.$("select#select-search-fields");
+
+        AJS.$.each(fieldsArray, function(index, sField) {
+            var selected = "";
+
+            if (Object.has(sField['schema'], 'customId') && $.inArray(sField.schema.customId, selectedFieldsValueArray) >= 0) {
+                selected = "selected";
+
+            } else if (Object.has(sField['schema'], 'system') && $.inArray(sField.schema.system, selectedFieldsValueArray) >= 0) {
+                selected = "selected";
+            }
+            $select.append("<option value=\"{1}\" {2}>{3}</option>".assign((Object.has(sField['schema'], 'customId') ? sField.schema.customId : sField.schema.system), selected, sField.name));
+        });
+
+        $select.chosen({"width": "100%"}).change(function(evt, change) {
+            updateContentPropertyFieldSelect("searchInFields");
+        });
+    }
+
+    function updateContentPropertyFieldSelect(propertyKey) {
+        AJS.$.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
+            function(data) {
+                var propVersion = data.version.number,
+                    propId = data.id,
+                    selectedFieldsArray = getSelectedFieldsFrom("select#select-search-fields");
+
+                $.when(updatePageProperty(AJS.params.pageId, propId, propertyKey, propVersion, selectedFieldsArray)).then(function(data) {
+                    require(['aui/flag'], function (flag) {
+                        flag({
+                            type: "success",
+                            title: "Saved!",
+                            persistent: false,
+                            body: "\"Search in fields\" property successfully saved."
+                        });
+                    });
+                });
+            }
+        );
+    }
+
+    function getSelectedFieldsFrom(selectFieldSelector) {
+        var $selectField = $(selectFieldSelector + " :selected"),
+            selectedValues = [];
+
+        $selectField.each(function() {
+            var field = $(this).val()
+            if (!isNaN(field)) {
+                selectedValues.push(parseInt(field));
+            } else {
+                selectedValues.push(field);
+            }
+        });
+
+        return selectedValues;
+    }
 
     var entityMap = {
         "&": "&amp;",
@@ -174,4 +242,49 @@ AJS.toInit(function ($) {
         });
     }
 
+    function getPageProperty(pageId, propertyName) {
+        return $.ajax({
+            url: "/rest/api/content/" + pageId + "/property/" + propertyName,
+            cache: false,
+            type: "GET",
+            dataType: "json",
+            contentType: 'application/json',
+            timeout: 30000
+        });
+    }
+
+    function createPageProperty(pageId, propertyName, initialValue) {
+        return $.ajax({
+            url: "/rest/api/content/" + pageId + "/property/" + propertyName,
+            cache: false,
+            type: "POST",
+            dataType: "json",
+            contentType: 'application/json',
+            data: JSON.stringify({
+                "key": propertyName,
+                "value": initialValue
+            }),
+            timeout: 30000
+        });
+    }
+
+    function updatePageProperty(pageId, propertyId, propertyName, latestVersion, newValue) {
+        return $.ajax({
+            url: "/rest/api/content/" + pageId + "/property/" + propertyName,
+            cache: false,
+            type: "PUT",
+            dataType: "json",
+            contentType: 'application/json',
+            data: JSON.stringify({
+                "id": propertyId,
+                "key": propertyName,
+                "value": newValue,
+                "version": {
+                    "number": latestVersion + 1,
+                    "minorEdit": false
+                }
+            }),
+            timeout: 30000
+        });
+    }
 });

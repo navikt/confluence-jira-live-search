@@ -94,7 +94,7 @@ public class JiraLiveSearchMacro extends BaseMacro implements Macro {
 
     private void logExecution(ConversionContext conversionContext) {
         if (conversionContext != null && conversionContext.getEntity() != null && AuthenticatedUserThreadLocal.get() != null) {
-            LOG.info("TDP macro execution: " + getClass().getCanonicalName() + " "
+            LOG.info("NAV IKT macro execution: " + getClass().getCanonicalName() + " "
                     + conversionContext.getEntity().getIdAsString());
         }
     }

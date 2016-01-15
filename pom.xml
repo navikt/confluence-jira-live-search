@@ -21,7 +21,7 @@
             <artifactId>confluence-plugins-platform-pom</artifactId>
             <version>${confluence.version}</version>
             <type>pom</type>
-            <scope>import</scope>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -96,6 +96,7 @@
                 <version>${amps.version}</version>
                 <extensions>true</extensions>
                 <configuration>
+                    <compressResources>false</compressResources>
                     <productVersion>${confluence.version}</productVersion>
                     <productDataVersion>${confluence.data.version}</productDataVersion>
                     <instructions>

@@ -19,6 +19,7 @@
     <web-resource key="confluence-jira-live-search-resources" name="confluence-jira-live-search Web Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <dependency>no.nav.kiv.confluence.labs.confluence-commons:sugarjs</dependency>
+        <dependency>no.nav.kiv.confluence.labs.confluence-commons:confluence-commons-js</dependency>
         <transformation extension="less">
             <transformer key="less-transformer"/>
         </transformation>
@@ -39,6 +40,7 @@
     <web-resource key="advanced-resources" name="Advanced Web Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <dependency>no.nav.kiv.confluence.labs.confluence-commons:sugarjs</dependency>
+        <dependency>no.nav.kiv.confluence.labs.confluence-commons:chosenjs</dependency>
         <transformation extension="less">
             <transformer key="less-transformer"/>
         </transformation>
