@@ -30,27 +30,64 @@
             <input type="hidden" id="tableId" name="tableId" value="$!{id}"/>
 
             <button id="configuration-toggle" class="aui-button aui-button-link">Advanced (+)</button>
-            <div class="field-group toggle" style="display: none;">
-                <label for="select-search-fields">Search in:</label>
-                <select class="multi-select" size="1" multiple="multiple" id="select-search-fields" name="select-search-fields">
-                </select>
-                <div class="description">Select the JIRA fields you want to search in.</div>
-            </div>
-
-            <div class="field-group toggle" style="display: none;">
-                <label for="select-table-fields">Table fields:</label>
-                <select class="multi-select" size="1" multiple="multiple" id="select-table-fields" name="select-table-fields">
-                </select>
-                <div class="description">Select the JIRA fields you want to display in the results table.</div>
-            </div>
-
-            <div class="field-group toggle" style="display: none;">
-                <label for="select-lightbox-fields">Lightbox fields:</label>
-                <select class="multi-select" size="1" multiple="multiple" id="select-lightbox-fields" name="select-lightbox-fields">
-                </select>
-                <div class="description">Select the JIRA fields you want to display in the details lightbox.</div>
-            </div>
         </fieldset>
+
+        </fieldset>
+        <div class="toggle" style="display: none;">
+            <h3>Search configuration</h3>
+            <fieldset>
+                <div class="field-group">
+                    <label for="select-search-fields">Search in:</label>
+                    <select class="multi-select" size="1" multiple="multiple" id="select-search-fields" name="select-search-fields">
+                    </select>
+                    <div class="description">Select the JIRA fields you want to search in.</div>
+                </div>
+
+                <div class="field-group">
+                    <label for="select-table-fields">Table fields:</label>
+                    <select class="multi-select" size="1" multiple="multiple" id="select-table-fields" name="select-table-fields">
+                    </select>
+                    <div class="description">Select the JIRA fields you want to display in the results table.</div>
+                </div>
+
+                <div class="field-group">
+                    <label for="select-lightbox-fields">Lightbox fields:</label>
+                    <select class="multi-select" size="1" multiple="multiple" id="select-lightbox-fields" name="select-lightbox-fields">
+                    </select>
+                    <div class="description">Select the JIRA fields you want to display in the details lightbox.</div>
+                </div>
+            </fieldset>
+
+            <h3>Rename fields</h3>
+            <fieldset>
+                <div class="field-group">
+                    <label for="select-rename-fields">Rename field:<span class="aui-icon icon-required"> required</span></label>
+                    <select class="multi-select" size="1" id="select-rename-fields" name="select-rename-fields">
+                    </select>
+                    <div class="description">Select the JIRA fields you want to rename.</div>
+                </div>
+
+                <div class="field-group">
+                    <label for="input-rename-fields">to:<span class="aui-icon icon-required"> required</span></label>
+                    <input class="text" type="text" id="input-rename-fields" name="input-rename-fields" title="new name">
+                    <div class="description">Write the new name of the field.</div>
+                </div>
+
+                <button id="button-rename-fields" class="aui-button"><span class="aui-icon aui-icon-small aui-iconfont-list-add">Add </span> Add</button>
+
+                <table class="aui">
+                    <thead>
+                    <tr>
+                        <th>Old name</th>
+                        <th>New name</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody id="table-rename-rows">
+                    </tbody>
+                </table>
+            </fieldset>
+        </div>
     </form>
 
 </div>

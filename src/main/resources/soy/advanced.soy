@@ -39,6 +39,12 @@
                     <td class="confluenceTd" style="word-wrap: break-word;">{$fieldValue.displayName}</td>
                 {elseif $fieldValue.name != null}
                     <td class="confluenceTd" style="word-wrap: break-word;">{$fieldValue.name}</td>
+                {elseif length(keys($fieldValue)) != 0 and $fieldValue[0].value != null}
+                    <td class="confluenceTd" style="word-wrap: break-word;">
+                    {foreach $key in $fieldValue}
+                        {$key.value}{if not isLast($key)}, {/if}
+                    {/foreach}
+                    </td>
                 {else}
                     <td class="confluenceTd" style="word-wrap: break-word;">{$fieldValue}</td>
                 {/if}

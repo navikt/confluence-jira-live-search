@@ -57,14 +57,7 @@ AJS.toInit(function ($) {
                     expand: ["names"]
                 }),
                 success: function (data) {
-                    var table = buildTableFromData(data, tableFieldsArray);
-                    /*var find = searchField;
-                     var re = new RegExp(find, 'gi');*/
-                    $('div#table-' + id).html(table);
-
-                    $searchButton.removeClass("aui-icon-wait").addClass("aui-iconfont-search");
-
-                    AJS.tablessortable.setTableSortable(AJS.$("table#search-jira-results"));
+                    buildTableFromData(data, tableFieldsArray);
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     $searchButton.removeClass("aui-icon-wait").addClass("aui-iconfont-search");
@@ -90,13 +83,39 @@ AJS.toInit(function ($) {
     function buildTableFromData(data, tableFieldsArray) {
         var message = $.parseJSON(data.message);
         var jsonIssues = message.issues;
-        var jsonNames = message.names;
+        var jsonNames = message.names || {};
 
-        return NAV.KIV.Templates.LiveSearch.table({
-            fieldKeys: tableFieldsArray,
-            issues: jsonIssues,
-            fieldNames: jsonNames
-        });
+        $.when(renameFieldNames(jsonNames).then(function() {
+            var table = NAV.KIV.Templates.LiveSearch.table({
+                fieldKeys: tableFieldsArray,
+                issues: jsonIssues,
+                fieldNames: jsonNames
+            });
+
+            $('div#table-' + id).html(table);
+            $("form[name='livesearchForm']").find('.aui-icon.aui-icon-wait').removeClass("aui-icon-wait").addClass("aui-iconfont-search");
+            AJS.tablessortable.setTableSortable(AJS.$("table#search-jira-results"));
+        }));
+    }
+
+    function renameFieldNames(jsonNames) {
+        var request = $.Deferred();
+        if (Object.size(jsonNames) > 0) {
+            request = $.when(getPageProperty(AJS.params.pageId, "renamedFields")).then(
+                function (data) {
+                    var savedRenamedValues = data.value;
+
+                    $.each(savedRenamedValues, function (index, sField) {
+                        if (!isNaN(sField.fieldId) && Object.has(jsonNames, "customfield_" + sField.fieldId)) {
+                            jsonNames["customfield_" + sField.fieldId] = sField.newName;
+                        }
+                        else if (Object.has(jsonNames, sField.fieldId)) {
+                            jsonNames[sField.fieldId] = sField.newName;
+                        }
+                    });
+                });
+        }
+        return request;
     }
 
     function initializeApp() {
@@ -149,10 +168,146 @@ AJS.toInit(function ($) {
                 allFields.push(field);
             });
 
+            initializeRenameWithData(allFields, "renamedFields");
+
             initializeSelectWithData(searchFields, "searchInFields");
             initializeSelectWithData(allFields, "tableFields");
             initializeSelectWithData(allFields, "lightboxFields");
         }
+    }
+
+    function initializeRenameWithData(fieldsArray, propertyKey) {
+        var savedSelectedValues = [];
+        AJS.$.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
+            function(data) {
+                savedSelectedValues = data.value;
+                initializeRenameElements(savedSelectedValues, fieldsArray, "select#select-rename-fields", propertyKey);
+            }
+        ).fail(
+            function(jqxhr, status, textStatus) {
+                if ($.parseJSON(jqxhr.responseText).statusCode == 404) {
+                    $.when(createPageProperty(AJS.params.pageId, propertyKey, [])).done(function() {
+                        initializeRenameWithData(fieldsArray, propertyKey);
+                    });
+                }
+            }
+        );
+    }
+
+    function initializeRenameElements(renamedFieldValues, fieldsArray, selectFieldSelector, propertyKey) {
+        var $select = $(selectFieldSelector);
+        var renamedFieldIds = [];
+
+        // Initialize the table
+        $.each(renamedFieldValues, function(index, sField) {
+            var fieldId = sField.fieldId;
+            var fieldValues = sField;
+
+            renamedFieldIds.push(fieldId.toString());
+
+            $("table tbody#table-rename-rows").append("<tr id=\"customfield_{1}\"><td>{2}</td><td>{3}</td><td><button id=\"button-remove-field_{1}\" class=\"aui-button remove-rename\"><span class=\"aui-icon aui-icon-small aui-iconfont-list-remove\">Remove </span> remove</button></td></tr>"
+                .assign(fieldId, fieldValues.oldName, fieldValues.newName))
+        });
+
+        // Initialize the Select dropdown
+        $.each(fieldsArray, function(index, field) {
+            var fieldId = (Object.has(field['schema'], 'customId') ? field.schema.customId : field.schema.system);
+
+            if ($.inArray(fieldId.toString(), renamedFieldIds) == -1) {
+                $select.append("<option value=\"{1}\">{2}</option>".assign(fieldId, field.name));
+            }
+        });
+
+        $select.chosen({"width": "100%"});
+
+        // Bind the Add button action
+        $("button#button-rename-fields").bind('click', function() {
+            var $renameSelect = $("select#select-rename-fields");
+            var $renameInput = $("input#input-rename-fields");
+            var $renamedTable = $("table tbody#table-rename-rows"),
+                $selectList = $renameSelect.val(),
+                $newNameField = $renameInput.val();
+
+            if ($selectList && $newNameField) {
+                var $selectedOption = $("select#select-rename-fields  option:selected");
+                var oldFieldName = $selectedOption.text();
+                updateRenamedElements(propertyKey, $selectList, oldFieldName, $newNameField)
+
+                $renamedTable.append("<tr id=\"customfield_{1}\"><td>{2}</td><td>{3}</td><td><button id=\"button-remove-field_{1}\" class=\"aui-button remove-rename\"><span class=\"aui-icon aui-icon-small aui-iconfont-list-remove\">Remove </span> remove</button></td></tr>"
+                    .assign($selectList, oldFieldName, $newNameField))
+
+                $renameInput.val("");
+                $selectedOption.remove();
+                $renameSelect.trigger("chosen:updated");
+            } else { // some warn message
+            }
+        });
+
+        $("button.remove-rename").live('click', function(evt, change) {
+            var fieldId = $(this).prop('id').split('_')[1];
+            deleteRenamedElements(propertyKey, fieldId);
+        });
+    }
+
+    function updateRenamedElements(propertyKey, oldFieldId, oldFieldName, newFieldName) {
+        AJS.$.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
+            function(data) {
+                var propVersion = data.version.number,
+                    propId = data.id,
+                    value = data.value;
+
+                var newField = {"fieldId": oldFieldId, "oldName": oldFieldName, "newName": newFieldName};
+                value.push(newField)
+
+                $.when(updatePageProperty(AJS.params.pageId, propId, propertyKey, propVersion, value)).then(function(data) {
+
+                    require(['aui/flag'], function (flag) {
+                        flag({
+                            type: "success",
+                            title: "Saved!",
+                            close: "auto",
+                            body: "Property successfully saved."
+                        });
+                    });
+                });
+            }
+        );
+    }
+
+    function deleteRenamedElements(propertyKey, fieldId) {
+        AJS.$.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
+            function(data) {
+                var propVersion = data.version.number,
+                    propId = data.id,
+                    value = data.value;
+
+                var deleteIndex = value.findIndex(function (elm) {
+                   return elm['fieldId'] == fieldId;
+                });
+
+                if (deleteIndex > -1) {
+
+                    var fieldToDelete = value.splice(deleteIndex, 1);
+
+                    $.when(updatePageProperty(AJS.params.pageId, propId, propertyKey, propVersion, value)).then(function(data) {
+
+                        $("tr#customfield_" + fieldId).remove();
+                        var $renameSelect = $("select#select-rename-fields");
+                        $renameSelect.append("<option value=\"{1}\">{2}</option>".assign(fieldId, fieldToDelete.first().oldName));
+                        $renameSelect.trigger("chosen:updated");
+
+                        require(['aui/flag'], function (flag) {
+                            flag({
+                                type: "success",
+                                title: "Saved!",
+                                close: "auto",
+                                body: "Property successfully deleted."
+                            });
+                        });
+                    });
+                }
+            }
+        );
     }
 
     function initializeSelectWithData(fieldsArray, propertyKey) {
