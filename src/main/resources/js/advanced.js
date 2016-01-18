@@ -8,39 +8,17 @@ AJS.toInit(function ($) {
         issueType = $('#issueType').val(),
         status = $('#status').val(),
         component = $('#component').val(),
-        id = $('input#tableId').val(),
+        id = $('input#tableId').val();
 
-        searchInFields = $('#searchInFields').val().toLowerCase(),
-        showLabeledFields = $('#showLabeledFields').val();
     //fixedReturnFields = ["summary", "key", "status"]
 
-    var config = initializeFields(project, issueType);
+    initializeFields(project, issueType);
+    initializeApp();
 
-    var /*searchFieldsArray = searchInFields.split(/\s*,\s*//*g).map(function(elm) {
-            return (elm.has("customfield_") ? "cf[" + elm.split("_")[1] + "]" : elm);
-        }),*/
-        showFieldsArray = showLabeledFields.split(/\s*,\s*/g)/*.union(fixedReturnFields)*/,
-        componentsArray = component.split(/\s*,\s*/g),
+    var componentsArray = component.split(/\s*,\s*/g),
         statusArray = status.split(/\s*,\s*/g),
         issueTypeArray = issueType.split(/\s*,\s*/g),
         projectArray = project.split(/\s*,\s*/g);
-
-
-    //AJS.log(showFieldsArray);
-
-    /*    AJS.$.each(showFieldsArray, function(elm) {
-     if (elm.has(":")){
-     var split = elm.split(":");
-     translationsArray.split[0] = split[1];
-     }
-     });*/
-
-    /*    AJS.log(translationsArray);*/
-
-
-
-
-    //AJS.log(config);
 
     $('#search').keyup(function () {
         var $input = $(this),
@@ -49,11 +27,16 @@ AJS.toInit(function ($) {
             searchField = $('#search').val();
 
         if (searchField.length > 2) {
+
             $searchButton.addClass("aui-icon-wait").removeClass("aui-iconfont-search");
             $("div.aui-dd-parent").html("");
 
             var searchFieldsArray = getSelectedFieldsFrom("select#select-search-fields").map(function(elm) {
                 return (!isNaN(elm) ? "cf[" + elm + "]" : elm);
+            });
+
+            var tableFieldsArray = getSelectedFieldsFrom("select#select-table-fields").map(function(elm) {
+                return (!isNaN(elm) ? "customfield_" + elm : elm);
             });
 
             $.ajax({
@@ -68,13 +51,13 @@ AJS.toInit(function ($) {
                     issueTypes: issueTypeArray,
                     status: (status.isBlank() ? null : statusArray),
                     components: (component.isBlank() ? null : componentsArray),
-                    searchInFields: (searchInFields.isBlank() ? null : searchFieldsArray),
-                    fields: (showLabeledFields.isBlank() ? null : showFieldsArray),
+                    searchInFields: (searchFieldsArray.isEmpty() ? null : searchFieldsArray),
+                    fields: (tableFieldsArray.isEmpty() ? null : tableFieldsArray),
                     maxResults: 200,
                     expand: ["names"]
                 }),
                 success: function (data) {
-                    var table = buildTableFromData(data);
+                    var table = buildTableFromData(data, tableFieldsArray);
                     /*var find = searchField;
                      var re = new RegExp(find, 'gi');*/
                     $('div#table-' + id).html(table);
@@ -104,16 +87,26 @@ AJS.toInit(function ($) {
         }
     });
 
-    function buildTableFromData(data) {
+    function buildTableFromData(data, tableFieldsArray) {
         var message = $.parseJSON(data.message);
         var jsonIssues = message.issues;
         var jsonNames = message.names;
 
         return NAV.KIV.Templates.LiveSearch.table({
-            fieldKeys: showFieldsArray,
+            fieldKeys: tableFieldsArray,
             issues: jsonIssues,
             fieldNames: jsonNames
         });
+    }
+
+    function initializeApp() {
+        showHideConfigMenu();
+    }
+
+    function showHideConfigMenu() {
+        $("button#configuration-toggle").click(function () {
+            $("div.toggle").toggle();
+        })
     }
 
     function initializeFields(project, issueType) {
@@ -121,15 +114,27 @@ AJS.toInit(function ($) {
             projectKey: project,
             issuetypeName: issueType
         }).done(function (data) {
-            return parseFields($.parseJSON(data.message));
+            parseFields($.parseJSON(data.message));
         });
     }
 
     function parseFields(metadata) {
-        var fieldConfig = Object.extended();
-
         if (Object.has(metadata, 'projects')) {
-            var searchFields = [];
+            var statusField = {
+                "schema":{
+                    "type":"string",
+                    "system":"status"
+                },
+                "name":"Status"};
+            var keyField = {
+                "schema":{
+                    "type":"string",
+                    "system":"key"
+                },
+                "name":"Key"};
+
+            var searchFields = [],
+                allFields = [statusField, keyField];
 
             AJS.$.each(metadata.projects[0].issuetypes[0].fields, function(key, field) {
                 AJS.log("field: " + field);
@@ -141,69 +146,74 @@ AJS.toInit(function ($) {
                 else if (Object.has(field['schema'], 'custom') && field.schema.custom.indexOf("text") > 0) {
                     searchFields.push(field);
                 }
+                allFields.push(field);
             });
 
-            initializeSelects(searchFields, "searchInFields");
+            initializeSelectWithData(searchFields, "searchInFields");
+            initializeSelectWithData(allFields, "tableFields");
+            initializeSelectWithData(allFields, "lightboxFields");
         }
-
-        return fieldConfig;
     }
 
-    function initializeSelects(fieldsArray, propertyKey) {
+    function initializeSelectWithData(fieldsArray, propertyKey) {
         var savedSelectedValues = [];
         AJS.$.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
             function(data) {
                 savedSelectedValues = data.value;
 
                 if ("searchInFields" == propertyKey) {
-                    initializeSearchInFieldsSelect(savedSelectedValues, fieldsArray);
+                    initializeAdvancedFieldsSelect(savedSelectedValues, fieldsArray, "select#select-search-fields", propertyKey);
+                } else if ("tableFields" == propertyKey) {
+                    initializeAdvancedFieldsSelect(savedSelectedValues, fieldsArray, "select#select-table-fields", propertyKey);
+                } else if ("lightboxFields" == propertyKey) {
+                    initializeAdvancedFieldsSelect(savedSelectedValues, fieldsArray, "select#select-lightbox-fields", propertyKey);
                 }
             }
         ).fail(
             function(jqxhr, status, textStatus) {
                 if ($.parseJSON(jqxhr.responseText).statusCode == 404) {
                     $.when(createPageProperty(AJS.params.pageId, propertyKey, [])).done(function() {
-                        initializeSelects(fieldsArray, propertyKey);
+                        initializeSelectWithData(fieldsArray, propertyKey);
                     });
                 }
             }
         );
     }
 
-    function initializeSearchInFieldsSelect(selectedFieldsValueArray, fieldsArray) {
-        var $select = AJS.$("select#select-search-fields");
+    function initializeAdvancedFieldsSelect(selectedFieldsValueArray, fieldsArray, selectFieldSelector, propertyKey) {
+        var $select = $(selectFieldSelector);
 
         AJS.$.each(fieldsArray, function(index, sField) {
             var selected = "";
 
             if (Object.has(sField['schema'], 'customId') && $.inArray(sField.schema.customId, selectedFieldsValueArray) >= 0) {
                 selected = "selected";
-
             } else if (Object.has(sField['schema'], 'system') && $.inArray(sField.schema.system, selectedFieldsValueArray) >= 0) {
                 selected = "selected";
             }
+
             $select.append("<option value=\"{1}\" {2}>{3}</option>".assign((Object.has(sField['schema'], 'customId') ? sField.schema.customId : sField.schema.system), selected, sField.name));
         });
 
         $select.chosen({"width": "100%"}).change(function(evt, change) {
-            updateContentPropertyFieldSelect("searchInFields");
+            updateContentPropertyFieldSelect(propertyKey, selectFieldSelector);
         });
     }
 
-    function updateContentPropertyFieldSelect(propertyKey) {
+    function updateContentPropertyFieldSelect(propertyKey, fieldSelector) {
         AJS.$.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
             function(data) {
                 var propVersion = data.version.number,
                     propId = data.id,
-                    selectedFieldsArray = getSelectedFieldsFrom("select#select-search-fields");
+                    selectedFieldsArray = getSelectedFieldsFrom(fieldSelector);
 
                 $.when(updatePageProperty(AJS.params.pageId, propId, propertyKey, propVersion, selectedFieldsArray)).then(function(data) {
                     require(['aui/flag'], function (flag) {
                         flag({
                             type: "success",
                             title: "Saved!",
-                            persistent: false,
-                            body: "\"Search in fields\" property successfully saved."
+                            close: "auto",
+                            body: "Property successfully saved."
                         });
                     });
                 });

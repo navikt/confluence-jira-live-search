@@ -27,6 +27,8 @@
         {foreach $header in $fieldKeys}
             {if $header == 'key'}
                 <td class="confluenceTd" style="word-wrap: break-word;"><a href="http://jira.adeo.no/browse/{$issue.key}" target="_new">{$issue.key}</a></td>
+            {elseif $header == 'summary'}
+                <td class="confluenceTd" style="word-wrap: break-word;"><a href="http://jira.adeo.no/browse/{$issue.key}" target="_new">{$issue.fields[$header]}</a></td>
             {else}
                 {let $fieldValue: $issue.fields[$header] /}
                 {if $fieldValue == null}

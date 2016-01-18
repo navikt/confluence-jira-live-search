@@ -23,18 +23,32 @@
                 </button>
             #end
             <input type="hidden" id="project" name="project" value="$!{project}" />
-            <input type="hidden" id="status" name="project" value="$!{status}"/>
-            <input type="hidden" id="component" name="project" value="$!{component}"/>
-            <input type="hidden" id="searchInFields" name="project" value="$!{searchInFields}"/>
-            <input type="hidden" id="showLabeledFields" name="project" value="$!{showLabeledFields}"/>
+            <input type="hidden" id="status" name="status" value="$!{status}"/>
+            <input type="hidden" id="component" name="component" value="$!{component}"/>
+            <input type="hidden" id="showLabeledFields" name="showLabeledFields" value="$!{showLabeledFields}"/>
             <input type="hidden" id="issueType" name="issueType" value="$!{issueType}"/>
             <input type="hidden" id="tableId" name="tableId" value="$!{id}"/>
 
-            <div class="field-group">
-                <label for="select-search-fields">Search in fields</label>
+            <button id="configuration-toggle" class="aui-button aui-button-link">Advanced (+)</button>
+            <div class="field-group toggle" style="display: none;">
+                <label for="select-search-fields">Search in:</label>
                 <select class="multi-select" size="1" multiple="multiple" id="select-search-fields" name="select-search-fields">
                 </select>
-                <div class="description">Select the fields in JIRA you want to search in.</div>
+                <div class="description">Select the JIRA fields you want to search in.</div>
+            </div>
+
+            <div class="field-group toggle" style="display: none;">
+                <label for="select-table-fields">Table fields:</label>
+                <select class="multi-select" size="1" multiple="multiple" id="select-table-fields" name="select-table-fields">
+                </select>
+                <div class="description">Select the JIRA fields you want to display in the results table.</div>
+            </div>
+
+            <div class="field-group toggle" style="display: none;">
+                <label for="select-lightbox-fields">Lightbox fields:</label>
+                <select class="multi-select" size="1" multiple="multiple" id="select-lightbox-fields" name="select-lightbox-fields">
+                </select>
+                <div class="description">Select the JIRA fields you want to display in the details lightbox.</div>
             </div>
         </fieldset>
     </form>
