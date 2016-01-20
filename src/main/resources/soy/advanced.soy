@@ -28,7 +28,14 @@
             {if $header == 'key'}
                 <td class="confluenceTd" style="word-wrap: break-word;"><a href="http://jira.adeo.no/browse/{$issue.key}" target="_new">{$issue.key}</a></td>
             {elseif $header == 'summary'}
-                <td class="confluenceTd" style="word-wrap: break-word;"><a href="http://jira.adeo.no/browse/{$issue.key}" target="_new">{$issue.fields[$header]}</a></td>
+                <td class="confluenceTd" style="word-wrap: break-word;">
+                    <a href="#" id="inlineDialog_{$issue.id}" class="show-lightbox" aria-controls="lightbox-dialog_{$issue.key}" data-aui-trigger> <span class="aui-icon aui-icon-small aui-iconfont-devtools-file">Open</span> {$issue.fields[$header]}</a>
+                    <aui-inline-dialog2 id="lightbox-dialog_{$issue.key}" style="width: 800px;" class="aui-layer aui-inline-dialog" data-aui-alignment="bottom center" data-aui-responds-to="toggle" aria-hidden="true">
+                            <div class="aui-inline-dialog-contents">
+                               <span class="aui-icon aui-icon-large aui-icon-wait"></span> Loading data...
+                            </div>
+                    </aui-inline-dialog2>
+                </td>
             {else}
                 {let $fieldValue: $issue.fields[$header] /}
                 {if $fieldValue == null}

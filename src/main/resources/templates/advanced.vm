@@ -32,7 +32,6 @@
             <button id="configuration-toggle" class="aui-button aui-button-link">Advanced (+)</button>
         </fieldset>
 
-        </fieldset>
         <div class="toggle" style="display: none;">
             <h3>Search configuration</h3>
             <fieldset>
@@ -48,13 +47,6 @@
                     <select class="multi-select" size="1" multiple="multiple" id="select-table-fields" name="select-table-fields">
                     </select>
                     <div class="description">Select the JIRA fields you want to display in the results table.</div>
-                </div>
-
-                <div class="field-group">
-                    <label for="select-lightbox-fields">Lightbox fields:</label>
-                    <select class="multi-select" size="1" multiple="multiple" id="select-lightbox-fields" name="select-lightbox-fields">
-                    </select>
-                    <div class="description">Select the JIRA fields you want to display in the details lightbox.</div>
                 </div>
             </fieldset>
 
@@ -86,6 +78,23 @@
                     <tbody id="table-rename-rows">
                     </tbody>
                 </table>
+            </fieldset>
+
+            <h3>Lightbox configuration</h3>
+            <fieldset>
+                <div class="field-group">
+                    <label for="select-lightbox-fields">Lightbox fields:</label>
+                    <select class="multi-select" size="1" multiple="multiple" id="select-lightbox-fields" name="select-lightbox-fields">
+                    </select>
+                    <div class="description">Select the JIRA fields you want to display in the details lightbox.</div>
+                </div>
+
+                <div class="field-group">
+                    <label for="lightbox-template">Handlebars template</label>
+                    <textarea class="textarea" name="lightbox-template" id="lightbox-template" placeholder="Your lightbox template here..."></textarea>
+                </div>
+
+                <button id="button-save-template" style="float: right;" class="aui-button"><span class="aui-icon aui-icon-small aui-iconfont-table-paste-row">Save </span> Save</button>
             </fieldset>
         </div>
     </form>

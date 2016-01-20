@@ -116,3 +116,33 @@
 .search-jira-large .search-jira-query {
     float: none
 }
+
+.ace_editor {
+    border: 1px solid lightgray;
+    margin: auto;
+    height: 400px;
+    width: 100%;
+}
+.scrollmargin {
+    height: 80px;
+    text-align: center;
+}
+
+#lightbox-template {
+    position: relative;
+}
+
+div.field-view {
+    margin: 5px 0 0 0 !important;
+}
+
+label.label-view {
+    text-align: left !important;
+}
+
+div.wordwrap {
+    overflow-wrap: break-word;
+    word-break: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+}

@@ -41,6 +41,8 @@
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <dependency>no.nav.kiv.confluence.labs.confluence-commons:sugarjs</dependency>
         <dependency>no.nav.kiv.confluence.labs.confluence-commons:chosenjs</dependency>
+        <dependency>no.nav.kiv.confluence.labs.confluence-commons:acejs</dependency>
+        <dependency>no.nav.kiv.confluence.labs.confluence-commons:handlebarsjs</dependency>
         <transformation extension="less">
             <transformer key="less-transformer"/>
         </transformation>

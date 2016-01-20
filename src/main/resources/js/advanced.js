@@ -3,6 +3,7 @@
  */
 AJS.toInit(function ($) {
     $.support.cors = true;
+    require(['aui/inline-dialog2']);
 
     var project = $('#project').val(),
         issueType = $('#issueType').val(),
@@ -10,9 +11,8 @@ AJS.toInit(function ($) {
         component = $('#component').val(),
         id = $('input#tableId').val();
 
-    //fixedReturnFields = ["summary", "key", "status"]
-
     initializeFields(project, issueType);
+    initializeTemplate()
     initializeApp();
 
     var componentsArray = component.split(/\s*,\s*/g),
@@ -80,6 +80,53 @@ AJS.toInit(function ($) {
         }
     });
 
+    function initializeTemplate() {
+        var data;
+        var propertyKey = "lightboxTemplate";
+        var editor = ace.edit("lightbox-template");
+
+        $.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
+            function(data) {
+                data = data.value;
+
+                editor.setTheme('ace/theme/eclipse');
+                //editor.getSession().setMode('ace/mode/handlebars');
+
+                editor.setValue(data.template);
+            }
+        ).fail(
+            function(jqxhr, status, textStatus) {
+                if ($.parseJSON(jqxhr.responseText).statusCode == 404) {
+                    $.when(createPageProperty(AJS.params.pageId, propertyKey, {})).done(function() {
+                        initializeTemplate();
+                    });
+                }
+            }
+        );
+
+        $("button#button-save-template").bind('click', function() {
+            var template = editor.getValue();
+
+            $.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
+                function(data) {
+                    var propVersion = data.version.number,
+                        propId = data.id;
+
+                    $.when(updatePageProperty(AJS.params.pageId, propId, propertyKey, propVersion, {"template": template})).then(function(data) {
+                        require(['aui/flag'], function (flag) {
+                            flag({
+                                type: "success",
+                                title: "Saved!",
+                                close: "auto",
+                                body: "Template successfully saved."
+                            });
+                        });
+                    });
+                }
+            );
+        });
+    }
+
     function buildTableFromData(data, tableFieldsArray) {
         var message = $.parseJSON(data.message);
         var jsonIssues = message.issues;
@@ -95,6 +142,7 @@ AJS.toInit(function ($) {
             $('div#table-' + id).html(table);
             $("form[name='livesearchForm']").find('.aui-icon.aui-icon-wait').removeClass("aui-icon-wait").addClass("aui-iconfont-search");
             AJS.tablessortable.setTableSortable(AJS.$("table#search-jira-results"));
+
         }));
     }
 
@@ -120,12 +168,31 @@ AJS.toInit(function ($) {
 
     function initializeApp() {
         showHideConfigMenu();
+        initializeLightbox();
     }
 
     function showHideConfigMenu() {
         $("button#configuration-toggle").click(function () {
             $("div.toggle").toggle();
-        })
+        });
+    }
+
+    function initializeLightbox() {
+        var inlineDialog = $('aui-inline-dialog2.aui-inline-dialog');
+        inlineDialog.live("aui-layer-show", function(e) {
+
+            var $current = $(this),
+                content = $current.find("div.aui-inline-dialog-contents"),
+                issueKey = $current.prop('id').split("_")[1];
+
+            $.when(getPageProperty(AJS.params.pageId, "lightboxTemplate"), getIssueFromJira(issueKey)).done(function(temp, issues) {
+
+                var template = Handlebars.compile(temp[0].value.template);
+                var issue = $.parseJSON(issues[0].message).issues[0];
+                content.html(template(issue));
+                $current.show()
+            });
+        });
     }
 
     function initializeFields(project, issueType) {
@@ -155,7 +222,7 @@ AJS.toInit(function ($) {
             var searchFields = [],
                 allFields = [statusField, keyField];
 
-            AJS.$.each(metadata.projects[0].issuetypes[0].fields, function(key, field) {
+            $.each(metadata.projects[0].issuetypes[0].fields, function(key, field) {
                 AJS.log("field: " + field);
 
                 if (Object.has(field['schema'], 'system') && field.schema.system == "summary") {
@@ -178,7 +245,7 @@ AJS.toInit(function ($) {
 
     function initializeRenameWithData(fieldsArray, propertyKey) {
         var savedSelectedValues = [];
-        AJS.$.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
+        $.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
             function(data) {
                 savedSelectedValues = data.value;
                 initializeRenameElements(savedSelectedValues, fieldsArray, "select#select-rename-fields", propertyKey);
@@ -250,17 +317,16 @@ AJS.toInit(function ($) {
     }
 
     function updateRenamedElements(propertyKey, oldFieldId, oldFieldName, newFieldName) {
-        AJS.$.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
+        $.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
             function(data) {
                 var propVersion = data.version.number,
                     propId = data.id,
                     value = data.value;
 
                 var newField = {"fieldId": oldFieldId, "oldName": oldFieldName, "newName": newFieldName};
-                value.push(newField)
+                value.push(newField);
 
                 $.when(updatePageProperty(AJS.params.pageId, propId, propertyKey, propVersion, value)).then(function(data) {
-
                     require(['aui/flag'], function (flag) {
                         flag({
                             type: "success",
@@ -275,7 +341,7 @@ AJS.toInit(function ($) {
     }
 
     function deleteRenamedElements(propertyKey, fieldId) {
-        AJS.$.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
+        $.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
             function(data) {
                 var propVersion = data.version.number,
                     propId = data.id,
@@ -312,7 +378,7 @@ AJS.toInit(function ($) {
 
     function initializeSelectWithData(fieldsArray, propertyKey) {
         var savedSelectedValues = [];
-        AJS.$.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
+        $.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
             function(data) {
                 savedSelectedValues = data.value;
 
@@ -338,7 +404,7 @@ AJS.toInit(function ($) {
     function initializeAdvancedFieldsSelect(selectedFieldsValueArray, fieldsArray, selectFieldSelector, propertyKey) {
         var $select = $(selectFieldSelector);
 
-        AJS.$.each(fieldsArray, function(index, sField) {
+        $.each(fieldsArray, function(index, sField) {
             var selected = "";
 
             if (Object.has(sField['schema'], 'customId') && $.inArray(sField.schema.customId, selectedFieldsValueArray) >= 0) {
@@ -356,7 +422,7 @@ AJS.toInit(function ($) {
     }
 
     function updateContentPropertyFieldSelect(propertyKey, fieldSelector) {
-        AJS.$.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
+        $.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
             function(data) {
                 var propVersion = data.version.number,
                     propId = data.id,
@@ -450,6 +516,20 @@ AJS.toInit(function ($) {
                 }
             }),
             timeout: 30000
+        });
+    }
+
+    function getIssueFromJira(issueKey) {
+        return $.ajax({
+            url: "/rest/jirasearch/latest/search",
+            cache: false,
+            type: "POST",
+            dataType: "json",
+            contentType: 'application/json',
+            data: JSON.stringify({
+                issueKeys: [issueKey],
+                expand: ["names","renderedFields"]
+            })
         });
     }
 });
