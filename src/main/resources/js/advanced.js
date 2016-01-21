@@ -26,23 +26,31 @@ AJS.toInit(function ($) {
         issueTypeArray = issueType.split(/\s*,\s*/g),
         projectArray = project.split(/\s*,\s*/g);
 
-    var globalTimeout = null;
+    var globalTimeout = null,
+        globalSearchKey;
 
-    $searchInput.on('keyup', function(){
-        if (globalTimeout != null) clearTimeout(globalTimeout);
-        globalTimeout = setTimeout(SearchIssues, 300);
+    $searchInput.on('keyup', function() {
+        if (globalSearchKey != $searchInput.val()) {
+            if (globalTimeout != null) clearTimeout(globalTimeout);
+            globalTimeout = setTimeout(SearchIssues, 750);
+        }
     });
 
     function SearchIssues() {
-        globalTimeout = null;
         var searchInputValue = $searchInput.val();
+        globalTimeout = null;
+        globalSearchKey = searchInputValue;
 
         if (searchInputValue.length > 2) {
             spinnerStart();
             clearTable();
             clearErrors();
 
-            var searchFieldsArray = getSelectedFieldsFrom("select#select-search-fields").map(function(elm) {
+            var searchFieldsArray = getSelectedFieldsFrom("select#select-search-fields", false).map(function(elm) {
+                return (!isNaN(elm) ? "cf[" + elm + "]" : elm);
+            });
+
+            var searchFieldNamesArray = getSelectedFieldsFrom("select#select-search-fields", true).map(function(elm) {
                 return (!isNaN(elm) ? "cf[" + elm + "]" : elm);
             });
 
@@ -63,6 +71,7 @@ AJS.toInit(function ($) {
                     status: (status.isBlank() ? null : statusArray),
                     components: (component.isBlank() ? null : componentsArray),
                     searchInFields: (searchFieldsArray.isEmpty() ? null : searchFieldsArray),
+                    searchInFieldsNames: (searchFieldNamesArray.isEmpty() ? null : searchFieldNamesArray),
                     fields: (tableFieldsArray.isEmpty() ? null : tableFieldsArray),
                     maxResults: 300,
                     expand: ["names"]
@@ -480,12 +489,18 @@ AJS.toInit(function ($) {
         );
     }
 
-    function getSelectedFieldsFrom(selectFieldSelector) {
+    function getSelectedFieldsFrom(selectFieldSelector, textValue) {
+        var getTextValue = textValue || false;
         var $selectField = $(selectFieldSelector + " :selected"),
             selectedValues = [];
 
         $selectField.each(function() {
-            var field = $(this).val()
+            var field;
+            if(getTextValue) {
+                field = $(this).text();
+            } else {
+                field = $(this).val()
+            }
             if (!isNaN(field)) {
                 selectedValues.push(parseInt(field));
             } else {
