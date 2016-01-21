@@ -2,17 +2,23 @@
  * Created by s139742 on 13.11.2015.
  */
 AJS.toInit(function ($) {
-    $.support.cors = true;
     require(['aui/inline-dialog2']);
+    $.support.cors = true;
+
+    var $searchInput = $('#search');
 
     var project = $('#project').val(),
         issueType = $('#issueType').val(),
         status = $('#status').val(),
         component = $('#component').val(),
-        id = $('input#tableId').val();
+        globalID = $('input#tableId').val();
+
+    var $resultsTableDiv = $('div#table-' + globalID),
+        $spinnerIcon = $('span.spinner-icon'),
+        $errorMessage = $("div.aui-dd-parent");
 
     initializeFields(project, issueType);
-    initializeTemplate()
+    initializeTemplate();
     initializeApp();
 
     var componentsArray = component.split(/\s*,\s*/g),
@@ -20,16 +26,21 @@ AJS.toInit(function ($) {
         issueTypeArray = issueType.split(/\s*,\s*/g),
         projectArray = project.split(/\s*,\s*/g);
 
-    $('#search').keyup(function () {
-        var $input = $(this),
-            $form = $input.closest('form'),
-            $searchButton = $form.find('.aui-icon.aui-iconfont-search'),
-            searchField = $('#search').val();
+    var globalTimeout = null;
 
-        if (searchField.length > 2) {
+    $searchInput.on('keyup', function(){
+        if (globalTimeout != null) clearTimeout(globalTimeout);
+        globalTimeout = setTimeout(SearchIssues, 300);
+    });
 
-            $searchButton.addClass("aui-icon-wait").removeClass("aui-iconfont-search");
-            $("div.aui-dd-parent").html("");
+    function SearchIssues() {
+        globalTimeout = null;
+        var searchInputValue = $searchInput.val();
+
+        if (searchInputValue.length > 2) {
+            spinnerStart();
+            clearTable();
+            clearErrors();
 
             var searchFieldsArray = getSelectedFieldsFrom("select#select-search-fields").map(function(elm) {
                 return (!isNaN(elm) ? "cf[" + elm + "]" : elm);
@@ -46,21 +57,22 @@ AJS.toInit(function ($) {
                 dataType: "json",
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    searchKeyword: encodeURIComponent(searchField),
+                    searchKeyword: encodeURIComponent(searchInputValue),
                     projectKeys: projectArray,
                     issueTypes: issueTypeArray,
                     status: (status.isBlank() ? null : statusArray),
                     components: (component.isBlank() ? null : componentsArray),
                     searchInFields: (searchFieldsArray.isEmpty() ? null : searchFieldsArray),
                     fields: (tableFieldsArray.isEmpty() ? null : tableFieldsArray),
-                    maxResults: 200,
+                    maxResults: 300,
                     expand: ["names"]
                 }),
                 success: function (data) {
                     buildTableFromData(data, tableFieldsArray);
+                    spinnerStop();
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
-                    $searchButton.removeClass("aui-icon-wait").addClass("aui-iconfont-search");
+                    spinnerStop();
 
                     var msg = "";
 
@@ -75,19 +87,57 @@ AJS.toInit(function ($) {
                         body: '<p>' + msg + '</p>'
                     });
                 },
+                complete: function() {
+                    spinnerStop();
+                },
                 timeout: 30000
             });
         }
-    });
+    }
+
+    function clearTable() {
+        $resultsTableDiv.empty();
+    }
+
+    function clearErrors() {
+        $errorMessage.empty();
+    }
+
+    function spinnerStart() {
+        $spinnerIcon.addClass("aui-icon-wait").removeClass("aui-iconfont-search");
+    }
+
+    function spinnerStop() {
+        $spinnerIcon.removeClass("aui-icon-wait").addClass("aui-iconfont-search");
+    }
+
+    function buildTableFromData(data, tableFieldsArray) {
+        var message = $.parseJSON(data.message);
+        var jiraIssues = message.issues;
+        var fieldNames = message.names || {};
+
+        $.when(renameFieldNames(fieldNames).then(function() {
+
+            var tableContent = NAV.KIV.Templates.LiveSearch.table({
+                fieldKeys: tableFieldsArray,
+                issues: jiraIssues,
+                fieldNames: fieldNames,
+                totalFound: message.total
+            });
+
+            $resultsTableDiv.html(tableContent);
+            //$("form[name='livesearchForm']").find('.aui-icon.aui-icon-wait').removeClass("aui-icon-wait").addClass("aui-iconfont-search");
+            AJS.tablessortable.setTableSortable($resultsTableDiv.find('table'));
+        }));
+    }
 
     function initializeTemplate() {
-        var data;
         var propertyKey = "lightboxTemplate";
         var editor = ace.edit("lightbox-template");
 
         $.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
             function(data) {
-                data = data.value;
+                var data = data.value;
 
                 editor.setTheme('ace/theme/eclipse');
                 //editor.getSession().setMode('ace/mode/handlebars');
@@ -95,7 +145,7 @@ AJS.toInit(function ($) {
                 editor.setValue(data.template);
             }
         ).fail(
-            function(jqxhr, status, textStatus) {
+            function(jqxhr) {
                 if ($.parseJSON(jqxhr.responseText).statusCode == 404) {
                     $.when(createPageProperty(AJS.params.pageId, propertyKey, {})).done(function() {
                         initializeTemplate();
@@ -127,29 +177,10 @@ AJS.toInit(function ($) {
         });
     }
 
-    function buildTableFromData(data, tableFieldsArray) {
-        var message = $.parseJSON(data.message);
-        var jsonIssues = message.issues;
-        var jsonNames = message.names || {};
 
-        $.when(renameFieldNames(jsonNames).then(function() {
-            var table = NAV.KIV.Templates.LiveSearch.table({
-                fieldKeys: tableFieldsArray,
-                issues: jsonIssues,
-                fieldNames: jsonNames
-            });
-
-            $('div#table-' + id).html(table);
-            $("form[name='livesearchForm']").find('.aui-icon.aui-icon-wait').removeClass("aui-icon-wait").addClass("aui-iconfont-search");
-            AJS.tablessortable.setTableSortable(AJS.$("table#search-jira-results"));
-
-        }));
-    }
 
     function renameFieldNames(jsonNames) {
-        var request = $.Deferred();
-        if (Object.size(jsonNames) > 0) {
-            request = $.when(getPageProperty(AJS.params.pageId, "renamedFields")).then(
+        var request = $.when(getPageProperty(AJS.params.pageId, "renamedFields")).then(
                 function (data) {
                     var savedRenamedValues = data.value;
 
@@ -162,7 +193,6 @@ AJS.toInit(function ($) {
                         }
                     });
                 });
-        }
         return request;
     }
 
@@ -182,7 +212,7 @@ AJS.toInit(function ($) {
         inlineDialog.live("aui-layer-show", function(e) {
 
             var $current = $(this),
-                content = $current.find("div.aui-inline-dialog-contents"),
+                content = $current.find("div#dialog-content"),
                 issueKey = $current.prop('id').split("_")[1];
 
             $.when(getPageProperty(AJS.params.pageId, "lightboxTemplate"), getIssueFromJira(issueKey)).done(function(temp, issues) {
@@ -192,6 +222,14 @@ AJS.toInit(function ($) {
                 content.html(template(issue));
                 $current.show()
             });
+        });
+
+        inlineDialog.live("aui-layer-hide", function() {
+            //inlineDialog.remove();
+        });
+
+        inlineDialog.find("button.close-dialog-button").live("click", function() {
+            $("aui-inline-dialog2#" + $(this).attr("aria-dialog-id")).hide();
         });
     }
 

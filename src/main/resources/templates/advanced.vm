@@ -12,7 +12,7 @@
                 <input id="search" class="text" type="text" name="queryString" autocomplete="off"
                        placeholder="$!{placeholder}">
                 #if($isLarge)
-                    <span class="aui-icon aui-icon-large aui-iconfont-search">$i18n.getText(
+                    <span class="spinner-icon aui-icon aui-icon-large aui-iconfont-search">$i18n.getText(
                         'confluence.extra.livesearch.label')</span>
                 #end
             </div>
