@@ -9,30 +9,27 @@ AJS.toInit(function ($) {
 
     var project = $('#project').val(),
         issueType = $('#issueType').val(),
-        status = $('#status').val(),
-        component = $('#component').val(),
         globalID = $('input#tableId').val();
 
     var $resultsTableDiv = $('div#table-' + globalID),
         $spinnerIcon = $('span.spinner-icon'),
-        $errorMessage = $("div.aui-dd-parent");
+        $errorMessage = $("div.errorMessages");
 
     initializeFields(project, issueType);
     initializeTemplate();
     initializeApp();
 
-    var componentsArray = component.split(/\s*,\s*/g),
-        statusArray = status.split(/\s*,\s*/g),
-        issueTypeArray = issueType.split(/\s*,\s*/g),
+    var issueTypeArray = issueType.split(/\s*,\s*/g),
         projectArray = project.split(/\s*,\s*/g);
 
     var globalTimeout = null,
-        globalSearchKey;
+        globalSearchKey,
+        tableOrderingGlobal = [];
 
     $searchInput.on('keyup', function() {
         if (globalSearchKey != $searchInput.val()) {
             if (globalTimeout != null) clearTimeout(globalTimeout);
-            globalTimeout = setTimeout(SearchIssues, 750);
+            globalTimeout = setTimeout(SearchIssues, 1000);
         }
     });
 
@@ -46,6 +43,18 @@ AJS.toInit(function ($) {
             clearTable();
             clearErrors();
 
+            var filterFieldsArray = [];
+
+            $('fieldset#filterSection').find('select').each(function(index, element) {
+                var fieldId = $(this).prop("id").split("-")[1]
+                var valuesArray = getSelectedFieldsFrom("select#" + $(this).prop('id'), true).map(function(elm) {
+                    return (!isNaN(fieldId) ? "cf[" + fieldId + "]" : fieldId) + "::" + elm;
+                });
+                if (!valuesArray.isEmpty()) {
+                    filterFieldsArray.push(valuesArray);
+                }
+            });
+
             var searchFieldsArray = getSelectedFieldsFrom("select#select-search-fields", false).map(function(elm) {
                 return (!isNaN(elm) ? "cf[" + elm + "]" : elm);
             });
@@ -54,7 +63,13 @@ AJS.toInit(function ($) {
                 return (!isNaN(elm) ? "cf[" + elm + "]" : elm);
             });
 
-            var tableFieldsArray = getSelectedFieldsFrom("select#select-table-fields").map(function(elm) {
+            var selectedFieldsFrom = getSelectedFieldsFrom("select#select-table-fields", false);
+
+            var selectedFieldsFromSorted = selectedFieldsFrom.sortBy(function(elm) {
+                return  $.inArray(elm, tableOrderingGlobal);
+            });
+
+            var tableFieldsArray = selectedFieldsFromSorted.map(function(elm) {
                 return (!isNaN(elm) ? "customfield_" + elm : elm);
             });
 
@@ -68,11 +83,12 @@ AJS.toInit(function ($) {
                     searchKeyword: encodeURIComponent(searchInputValue),
                     projectKeys: projectArray,
                     issueTypes: issueTypeArray,
-                    status: (status.isBlank() ? null : statusArray),
-                    components: (component.isBlank() ? null : componentsArray),
+                    //status: (status.isBlank() ? null : statusArray),
+                    //components: (component.isBlank() ? null : componentsArray),
                     searchInFields: (searchFieldsArray.isEmpty() ? null : searchFieldsArray),
                     searchInFieldsNames: (searchFieldNamesArray.isEmpty() ? null : searchFieldNamesArray),
                     fields: (tableFieldsArray.isEmpty() ? null : tableFieldsArray),
+                    filterFields: (filterFieldsArray.isEmpty() ? null : filterFieldsArray),
                     maxResults: 300,
                     expand: ["names"]
                 }),
@@ -91,7 +107,7 @@ AJS.toInit(function ($) {
                         msg = jqXHR.responseText;
                     }
 
-                    AJS.messages.error("div.aui-dd-parent", {
+                    AJS.messages.error("div.errorMessages", {
                         title: errorThrown,
                         body: '<p>' + msg + '</p>'
                     });
@@ -106,6 +122,7 @@ AJS.toInit(function ($) {
 
     function clearTable() {
         $resultsTableDiv.empty();
+        $("aui-inline-dialog2").remove();
     }
 
     function clearErrors() {
@@ -125,27 +142,36 @@ AJS.toInit(function ($) {
         var jiraIssues = message.issues;
         var fieldNames = message.names || {};
 
+        $.each(jiraIssues, function(index, issue) {
+            if (Object.has(issue.fields, "updated")) {
+                issue.fields.updated = moment(issue.fields.updated).format('DD.MM.YY hh.mm')
+            }
+
+            if (Object.has(issue.fields, "created")) {
+                issue.fields.created = moment(issue.fields.created).format('DD.MM.YY hh.mm')
+            }
+        });
+
         $.when(renameFieldNames(fieldNames).then(function() {
 
             var tableContent = NAV.KIV.Templates.LiveSearch.table({
                 fieldKeys: tableFieldsArray,
-                issues: jiraIssues,
-                fieldNames: fieldNames,
-                totalFound: message.total
+                    issues: jiraIssues,
+                    fieldNames: fieldNames,
+                    totalFound: message.total
             });
 
-            $resultsTableDiv.html(tableContent);
-            //$("form[name='livesearchForm']").find('.aui-icon.aui-icon-wait').removeClass("aui-icon-wait").addClass("aui-iconfont-search");
-            AJS.tablessortable.setTableSortable($resultsTableDiv.find('table'));
-        }));
-    }
+        $resultsTableDiv.html(tableContent);
+        AJS.tablessortable.setTableSortable($resultsTableDiv.find('table'));
+    }));
+}
 
-    function initializeTemplate() {
-        var propertyKey = "lightboxTemplate";
-        var editor = ace.edit("lightbox-template");
+function initializeTemplate() {
+    var propertyKey = "lightboxTemplate";
+    var editor = ace.edit("lightbox-template");
 
-        $.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
-            function(data) {
+    $.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
+        function(data) {
                 var data = data.value;
 
                 editor.setTheme('ace/theme/eclipse');
@@ -156,7 +182,41 @@ AJS.toInit(function ($) {
         ).fail(
             function(jqxhr) {
                 if ($.parseJSON(jqxhr.responseText).statusCode == 404) {
-                    $.when(createPageProperty(AJS.params.pageId, propertyKey, {})).done(function() {
+                    var templateStandard = "<div class=\"aui-group aui-group-split\">\n" +
+                        "     <div class=\"aui-item\" style=\"width: 66%;\">\n" +
+                        "     <fieldset>\n" +
+                        "         <div class=\"field-group\">\n" +
+                        "             <label class=\"label-view\" for=\"summary\">Summary:</label>\n" +
+                        "             <div class=\"field-view wordwrap\" id=\"summary\"><strong>{{fields.summary}}</strong></div>\n" +
+                        "         </div>\n" +
+                        "         <div class=\"field-group\">\n" +
+                        "             <label class=\"label-view\" for=\"beskrivelse\">Beskrivelse:</label>\n" +
+                        "             <div class=\"field-view wordwrap\" id=\"beskrivelse\">{{{renderedFields.description}}}</div>\n" +
+                        "         </div>\n" +
+                        "     </fieldset>\n" +
+                        "     </div>\n" +
+                        "     <div class=\"aui-item\">\n" +
+                        "     <fieldset>\n" +
+                        "         <div class=\"field-group\">\n" +
+                        "             <label class=\"label-view\" for=\"status\">Status:</label>\n" +
+                        "             <div class=\"field-view wordwrap\" style=\"color: green;\" id=\"status\"><strong>{{fields.status.name}}</strong></div>\n" +
+                        "         </div>\n" +
+                        "         <div class=\"field-group\">\n" +
+                        "             <label class=\"label-view\" for=\"relasjon\">Relasjoner til andre begreper:</label>\n" +
+                        "             <div class=\"field-view wordwrap\" id=\"relasjon\">{{#each issuelinks}}{{this.outwardIssue.key}} ({{this.outwardIssue.fields.status.name}}){{#unless @last}}, {{/unless}}{{/each}}</div>\n" +
+                        "         </div>\n" +
+                        "         <div class=\"field-group\">\n" +
+                        "              <label class=\"label-view\" for=\"oppdatert\">Opprettet:</label>\n" +
+                        "              <div class=\"field-view wordwrap\" id=\"opprettet\">{{{renderedFields.created}}}</div>\n" +
+                        "          </div>\n" +
+                        "         <div class=\"field-group\">\n" +
+                        "             <label class=\"label-view\" for=\"oppdatert\">Sist oppdatert:</label>\n" +
+                        "             <div class=\"field-view wordwrap\" id=\"oppdatert\">{{{renderedFields.updated}}}</div>\n" +
+                        "         </div>\n" +
+                        "     </fieldset>\n" +
+                        "     </div>\n" +
+                        " </div>";
+                    $.when(createPageProperty(AJS.params.pageId, propertyKey, {"template": templateStandard})).done(function() {
                         initializeTemplate();
                     });
                 }
@@ -186,8 +246,6 @@ AJS.toInit(function ($) {
         });
     }
 
-
-
     function renameFieldNames(jsonNames) {
         var request = $.when(getPageProperty(AJS.params.pageId, "renamedFields")).then(
                 function (data) {
@@ -207,13 +265,43 @@ AJS.toInit(function ($) {
 
     function initializeApp() {
         showHideConfigMenu();
+        showHideFilterMenu();
         initializeLightbox();
     }
 
     function showHideConfigMenu() {
-        $("button#configuration-toggle").click(function () {
-            $("div.toggle").toggle();
-        });
+        $.when(getPageEditRestrictions(AJS.params.pageId)).done(function(data) {
+            var userRestrictions = data.restrictions.user;
+            var remoteUser = AJS.params.remoteUserKey;
+
+            if (userRestrictions.size > 0) {
+                $.each(userRestrictions.results, function(index, restriction) {
+                    if (restriction.userKey === remoteUser) {
+                        var $button = $("button#configuration-toggle");
+                        $button.removeClass('hidden');
+                        $button.on('click', function (evt) {
+                            $("div.toggle").toggle();
+                            evt.preventDefault();
+                        });
+                    }
+                })
+            }
+        })
+    }
+
+    function showHideFilterMenu() {
+        $.when(getPageProperty(AJS.params.pageId, "filterInFields")).done(
+            function(data) {
+                var savedSelectedValues = data.value;
+                if (!savedSelectedValues.isEmpty()) {
+                    var $button = $("button#filters-toggle");
+                    $button.removeClass('hidden');
+                    $button.on('click', function (evt) {
+                        $("div#search-filters").toggle();
+                        evt.preventDefault();
+                    });
+                }
+            });
     }
 
     function initializeLightbox() {
@@ -231,10 +319,6 @@ AJS.toInit(function ($) {
                 content.html(template(issue));
                 $current.show()
             });
-        });
-
-        inlineDialog.live("aui-layer-hide", function() {
-            //inlineDialog.remove();
         });
 
         inlineDialog.find("button.close-dialog-button").live("click", function() {
@@ -255,7 +339,7 @@ AJS.toInit(function ($) {
         if (Object.has(metadata, 'projects')) {
             var statusField = {
                 "schema":{
-                    "type":"string",
+                    "type":"array",
                     "system":"status"
                 },
                 "name":"Status"};
@@ -266,28 +350,122 @@ AJS.toInit(function ($) {
                 },
                 "name":"Key"};
 
+            var updatedField = {
+                "schema":{
+                    "type":"string",
+                    "system":"updated"
+                },
+                "name":"Updated"};
+
+            var createdField = {
+                "schema":{
+                    "type":"string",
+                    "system":"created"
+                },
+                "name":"Created"};
+
             var searchFields = [],
-                allFields = [statusField, keyField];
+                allFields = [statusField, keyField, updatedField, createdField],
+                filterFields = [statusField];
 
             $.each(metadata.projects[0].issuetypes[0].fields, function(key, field) {
-                AJS.log("field: " + field);
-
                 if (Object.has(field['schema'], 'system') && field.schema.system == "summary") {
                     searchFields.push(field);
+                }
+                else if (Object.has(field['schema'], 'system') && field.schema.system == "components") {
+                    filterFields.push(field)
                 }
                 // Search in custom text fields
                 else if (Object.has(field['schema'], 'custom') && field.schema.custom.indexOf("text") > 0) {
                     searchFields.push(field);
                 }
+                // Search for custom cascading fields
+                else if (Object.has(field['schema'], 'custom') && (field.schema.custom.indexOf("select") > 0 || field.schema.custom.indexOf("checkbox") > 0)) {
+                    filterFields.push(field);
+                }
+
                 allFields.push(field);
             });
 
             initializeRenameWithData(allFields, "renamedFields");
 
             initializeSelectWithData(searchFields, "searchInFields");
+            initializeSelectWithData(filterFields, "filterInFields");
+
             initializeSelectWithData(allFields, "tableFields");
-            initializeSelectWithData(allFields, "lightboxFields");
+
+            initializeTableOrder(allFields, "tableOrder");
         }
+    }
+
+    function initializeTableOrder(fieldsArray, propertyKey) {
+        var savedValues = [];
+        $.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
+            function(data) {
+                savedValues = data.value;
+                tableOrderingGlobal = savedValues;
+                var $ul = $("ul#sort-table-fields");
+
+                $.each(savedValues, function(index, fieldId) {
+                    var field = fieldsArray.find(function(elm) {
+                        if (Object.has(elm['schema'], 'customId')) {
+                            return elm.schema.customId == fieldId;
+                        } else if (Object.has(elm['schema'], 'system')) {
+                            return elm.schema.system == fieldId;
+                        }
+                    });
+                   if (field) {
+                       $ul.append("<li data-value=\"{1}\">{2}</li>".assign(field.schema.customId || field.schema.system, field.name));
+                   }
+                });
+                $ul.sortable({"forcePlaceholderSize": true, "items": "li"}).bind('sortupdate', function(evt, ui) {
+                    var sortingArray = [];
+                    $ul.find("li").each(function(index, elm){
+                        var selfValue = $(this).attr('data-value');
+                        if (!isNaN(selfValue)) {
+                            sortingArray.push(parseInt(selfValue));
+                        } else {
+                            sortingArray.push(selfValue);
+                        }
+                    });
+                    updateTableSort(propertyKey, sortingArray);
+                });
+            }
+        ).fail(
+            function(jqxhr, status, textStatus) {
+                if ($.parseJSON(jqxhr.responseText).statusCode == 404) {
+
+                    var felter = fieldsArray.map(function(elm) {
+                        return elm.schema.customId || elm.schema.system;
+                    });
+
+                    $.when(createPageProperty(AJS.params.pageId, propertyKey, felter)).done(function() {
+                        initializeTableOrder(fieldsArray, propertyKey);
+                    });
+                }
+            }
+        );
+    }
+
+    function updateTableSort(propertyKey, sortArray) {
+        $.when(getPageProperty(AJS.params.pageId, propertyKey)).done(
+            function(data) {
+                var propVersion = data.version.number,
+                    propId = data.id;
+
+                $.when(updatePageProperty(AJS.params.pageId, propId, propertyKey, propVersion, sortArray)).then(function(data) {
+                    tableOrderingGlobal = sortArray;
+                    require(['aui/flag'], function (flag) {
+                        flag({
+                            type: "success",
+                            title: "Saved!",
+                            close: "auto",
+                            body: "Sorting successfully saved."
+                        });
+                    });
+                });
+            }
+        );
     }
 
     function initializeRenameWithData(fieldsArray, propertyKey) {
@@ -431,10 +609,10 @@ AJS.toInit(function ($) {
 
                 if ("searchInFields" == propertyKey) {
                     initializeAdvancedFieldsSelect(savedSelectedValues, fieldsArray, "select#select-search-fields", propertyKey);
+                } else if ("filterInFields" == propertyKey) {
+                    initializeAdvancedFieldsSelect(savedSelectedValues, fieldsArray, "select#select-filter-fields", propertyKey);
                 } else if ("tableFields" == propertyKey) {
                     initializeAdvancedFieldsSelect(savedSelectedValues, fieldsArray, "select#select-table-fields", propertyKey);
-                } else if ("lightboxFields" == propertyKey) {
-                    initializeAdvancedFieldsSelect(savedSelectedValues, fieldsArray, "select#select-lightbox-fields", propertyKey);
                 }
             }
         ).fail(
@@ -460,11 +638,85 @@ AJS.toInit(function ($) {
                 selected = "selected";
             }
 
+            if ("selected" == selected && "filterInFields" == propertyKey) {
+                if (Object.has(sField['schema'], 'custom') && (sField.schema.custom.indexOf("select") >= 0 || sField.schema.custom.indexOf("checkbox") >= 0)) {
+                    addFilterWithId(sField);
+                } else if (Object.has(sField['schema'], 'system') && sField.schema.system.indexOf("components") >= 0) {
+                    addFilterWithId(sField);
+                } else if (Object.has(sField['schema'], 'system') && sField.schema.system.indexOf("status") >= 0) {
+                    $.when(getStatusesFromJIRA(project)).done(function(data) {
+                        var statuses = $.parseJSON(data.message)[0];
+                        statuses['name'] = "Status";
+                        statuses['schema'] = {};
+                        statuses['schema']['system'] = "status";
+                        addFilterWithId(statuses);
+                    });
+
+                }
+            }
+
             $select.append("<option value=\"{1}\" {2}>{3}</option>".assign((Object.has(sField['schema'], 'customId') ? sField.schema.customId : sField.schema.system), selected, sField.name));
         });
 
         $select.chosen({"width": "100%"}).change(function(evt, change) {
             updateContentPropertyFieldSelect(propertyKey, selectFieldSelector);
+        });
+    }
+
+    function addFilterWithId(field) {
+        var fieldId = field.schema.customId || field.schema.system,
+            fieldLabel = "Filtrer på " + field.name,
+            fieldPlaceholder = "Filtrer på " + field.name,
+            fieldDesc = "";
+
+        var fieldOpts = [];
+
+        var preselectedFields = getCookie(fieldId + AJS.params.remoteUserKey);
+        var fieldsFromCookieArray = preselectedFields.split("||");
+
+        if (Object.has(field, 'allowedValues')) {
+            $.each(field.allowedValues, function(index, value) {
+                var selected = "";
+                if ($.inArray(value.id, fieldsFromCookieArray) >= 0) {
+                    selected = "selected";
+                }
+                fieldOpts.push({"id": value.id, "value": value.value || value.name, "selected": selected});
+                if (Object.has(value, "children")) {
+                    $.each(value.children, function(index, child) {
+                        var selected = "";
+                        if ($.inArray(child.id, fieldsFromCookieArray) >= 0) {
+                            selected = "selected";
+                        }
+                        fieldOpts.push({"id": child.id, "value": child.value, "selected": selected});
+                    });
+                }
+            });
+        } else if (Object.has(field, 'statuses')) {
+            $.each(field.statuses, function(index, value) {
+                var selected = "";
+                if ($.inArray(value.id, fieldsFromCookieArray) >= 0) {
+                    selected = "selected";
+                }
+                fieldOpts.push({"id": value.id, "value": value.name, "selected": selected});
+            });
+        }
+        var filterSelectField = NAV.KIV.Templates.LiveSearch.filterField({
+            "fieldId": fieldId,
+            "fieldLabel": fieldLabel,
+            "fieldDesc": fieldDesc,
+            "fieldOpts": fieldOpts,
+            "fieldPlaceholder": fieldPlaceholder
+        });
+
+        $("#filterSection").append(filterSelectField);
+
+        var selector = "select#select-" + fieldId + "-fields";
+        var $selectField = $(selector);
+        $selectField.chosen({"width": "100%"}).change(function(evt) {
+            var currentSelect = evt.currentTarget;
+            var fieldId = $(currentSelect).prop('id').split('-')[1];
+            var selectedElements = getSelectedFieldsFrom(selector, false);
+            setCookie(fieldId + AJS.params.remoteUserKey, selectedElements.join("||"), 365);
         });
     }
 
@@ -584,5 +836,44 @@ AJS.toInit(function ($) {
                 expand: ["names","renderedFields"]
             })
         });
+    }
+
+    function getStatusesFromJIRA(projectKey) {
+        return $.ajax({
+            url: "/rest/jirasearch/latest/search/metadata/statuses",
+            type: "GET",
+            dataType: "json",
+            contentType: 'application/json',
+            data: {
+                projectKey: projectKey
+            }
+        });
+    }
+
+    function getPageEditRestrictions(pageId) {
+        return $.ajax({
+            url: "/rest/api/content/" + pageId + "/restriction/byOperation/update",
+            type: "GET",
+            dataType: "json",
+            contentType: 'application/json'
+        });
+    }
+
+    function setCookie(cname, cvalue, exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays*24*60*60*1000));
+        var expires = "expires="+d.toUTCString();
+        document.cookie = cname + "=" + cvalue + "; " + expires;
+    }
+
+    function getCookie(cname) {
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0; i<ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1);
+            if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
+        }
+        return "";
     }
 });

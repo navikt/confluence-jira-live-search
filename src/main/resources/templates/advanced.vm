@@ -5,7 +5,7 @@
     #set ($isLarge = $size == "large")
 
 <div class="search-jira #if($isLarge)search-jira-large#{else}search-jira-medium#end">
-    <div class="aui-dd-parent"></div>
+    <div class="aui-dd-parent errorMessages"></div>
     <form class="aui aui-dd-parent" name="livesearchForm" onsubmit="return false;">
         <fieldset class="search-jira-fields">
             <div class="search-jira-query">
@@ -23,15 +23,12 @@
                 </button>
             #end
             <input type="hidden" id="project" name="project" value="$!{project}" />
-            <input type="hidden" id="status" name="status" value="$!{status}"/>
-            <input type="hidden" id="component" name="component" value="$!{component}"/>
-            <input type="hidden" id="showLabeledFields" name="showLabeledFields" value="$!{showLabeledFields}"/>
             <input type="hidden" id="issueType" name="issueType" value="$!{issueType}"/>
             <input type="hidden" id="tableId" name="tableId" value="$!{id}"/>
 
-            <button id="configuration-toggle" class="aui-button aui-button-link">Advanced (+)</button>
         </fieldset>
 
+        <button id="configuration-toggle" type="button" class="aui-button aui-button-link hidden">Advanced (+)</button>
         <div class="toggle" style="display: none;">
             <h3>Search configuration</h3>
             <fieldset>
@@ -43,10 +40,23 @@
                 </div>
 
                 <div class="field-group">
+                    <label for="select-filter-fields">Filter in:</label>
+                    <select class="multi-select" size="1" multiple="multiple" id="select-filter-fields" name="select-filter-fields">
+                    </select>
+                    <div class="description">Select the JIRA fields you want to filter in.</div>
+                </div>
+
+                <div class="field-group">
                     <label for="select-table-fields">Table fields:</label>
                     <select class="multi-select" size="1" multiple="multiple" id="select-table-fields" name="select-table-fields">
                     </select>
                     <div class="description">Select the JIRA fields you want to display in the results table.</div>
+                </div>
+
+                <div class="field-group">
+                    <label for="sort-table-fields">Sort table fields:</label>
+                    <ul id="sort-table-fields"></ul>
+                    <div class="description">Select the display order in the table. Drag and drop the elements to change order.</div>
                 </div>
             </fieldset>
 
@@ -83,13 +93,6 @@
             <h3>Lightbox configuration</h3>
             <fieldset>
                 <div class="field-group">
-                    <label for="select-lightbox-fields">Lightbox fields:</label>
-                    <select class="multi-select" size="1" multiple="multiple" id="select-lightbox-fields" name="select-lightbox-fields">
-                    </select>
-                    <div class="description">Select the JIRA fields you want to display in the details lightbox.</div>
-                </div>
-
-                <div class="field-group">
                     <label for="lightbox-template">Handlebars template</label>
                     <textarea class="textarea" name="lightbox-template" id="lightbox-template" placeholder="Your lightbox template here..."></textarea>
                 </div>
@@ -101,6 +104,13 @@
 
 </div>
 <br/>
+<button id="filters-toggle" type="button" class="aui-button aui-button-link hidden">Filters (+)</button>
+<div id="search-filters" style="width: 100%; display: none;")>
+    <form class="aui top-label" name="filterform" onsubmit="return false;">
+        <fieldset id="filterSection" class="top-label">
+        </fieldset>
+    </form>
+</div>
 <div id="table-$!{id}"></div>
 #else
 <div class="aui-message aui-message-warning">

@@ -1,6 +1,28 @@
 {namespace NAV.KIV.Templates.LiveSearch}
 
 /**
+* Creates a search field
+* @param fieldId
+* @param fieldLabel
+* @param fieldDesc
+* @param fieldOpts
+* @param fieldPlaceholder
+*/
+{template .filterField}
+<div class="field-group top-label">
+    <label for="select-{$fieldId}-fields">{$fieldLabel}:</label>
+    <select {if $fieldPlaceholder != null}data-placeholder="{$fieldPlaceholder}" {/if}class="multi-select long-field" size="1" multiple="multiple" id="select-{$fieldId}-fields" name="select-{$fieldId}-fields">
+    {foreach $field in $fieldOpts}
+        <option value="{$field.id}" {$field.selected}>{$field.value}</option>
+    {/foreach}
+    </select>
+    {if $fieldDesc != null}
+        <div class="description">{$fieldDesc}</div>
+    {/if}
+</div>
+{/template}
+
+/**
 * Table with search results
 * @param fieldKeys
 * @param issues
@@ -48,6 +70,10 @@
                             </div>
                     </aui-inline-dialog2>
                 </td>
+            {elseif $header == 'updated'}
+                <td class="confluenceTd" style="word-wrap: break-word;">{$issue.fields['updated']}</td>
+            {elseif $header == 'updated'}
+                <td class="confluenceTd" style="word-wrap: break-word;">{$issue.fields['created']}</td>
             {else}
                 {let $fieldValue: $issue.fields[$header] /}
                 {if $fieldValue == null}
@@ -62,6 +88,12 @@
                     <td class="confluenceTd" style="word-wrap: break-word;">
                     {foreach $key in $fieldValue}
                         {$key.value}{if not isLast($key)}, {/if}
+                    {/foreach}
+                    </td>
+                {elseif length(keys($fieldValue)) != 0 and $fieldValue[0].name != null}
+                    <td class="confluenceTd" style="word-wrap: break-word;">
+                    {foreach $key in $fieldValue}
+                        {$key.name}{if not isLast($key)}, {/if}
                     {/foreach}
                     </td>
                 {else}

@@ -146,3 +146,8 @@ div.wordwrap {
     word-wrap: break-word;
     hyphens: auto;
 }
+
+.hidden {
+    visibility: hidden;
+    display: none;
+}

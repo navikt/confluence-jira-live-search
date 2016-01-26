@@ -43,6 +43,8 @@
         <dependency>no.nav.kiv.confluence.labs.confluence-commons:chosenjs</dependency>
         <dependency>no.nav.kiv.confluence.labs.confluence-commons:acejs</dependency>
         <dependency>no.nav.kiv.confluence.labs.confluence-commons:handlebarsjs</dependency>
+        <dependency>no.nav.kiv.confluence.labs.confluence-commons:momentjs</dependency>
+        <dependency>no.nav.kiv.confluence.labs.confluence-commons:sortablejs</dependency>
         <transformation extension="less">
             <transformer key="less-transformer"/>
         </transformation>
@@ -78,8 +80,6 @@
         <parameters>
             <parameter name="project" type="string" multiple="true" required="true" />
             <parameter name="issueType" type="string" required="true" />
-            <parameter name="status" type="string" multiple="true" />
-            <parameter name="component" type="string" multiple="true" />
             <parameter name="placeholder" type="string"/>
             <parameter name="size" type="enum" default="medium">
                 <value name="medium"/>

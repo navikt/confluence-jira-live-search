@@ -33,19 +33,9 @@ public class JiraLiveSearchMacro extends BaseMacro implements Macro {
         logExecution(conversionContext);
 
         String project = parameters.get("project");
-        String status = parameters.get("status");
-        String component = parameters.get("component");
-
 
         String issueType = parameters.get("issueType");
         String placeholder = parameters.get("placeholder");
-
-        String searchInFields = parameters.get("searchInFields");
-
-        String showLabeledFields = parameters.get("showLabeledFields");
-        if (StringUtils.isBlank(showLabeledFields)) {
-            showLabeledFields = searchInFields;
-        }
 
         String size = parameters.get("size");
         if (StringUtils.isBlank(size)) size = MEDIUM_SIZE;
@@ -53,14 +43,7 @@ public class JiraLiveSearchMacro extends BaseMacro implements Macro {
         final Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
 
         contextMap.put("id", UUID.randomUUID().toString());
-
         contextMap.put("project", project.trim().toUpperCase());
-        contextMap.put("status", (null != status ? status.trim() : ""));
-        contextMap.put("component", (null != component ? component.trim() : ""));
-
-        contextMap.put("searchInFields", (null != searchInFields ? searchInFields.trim() : ""));
-        contextMap.put("showLabeledFields", (null != showLabeledFields ? showLabeledFields.trim() : ""));
-
         contextMap.put("issueType", issueType);
         contextMap.put("size", size);
         contextMap.put("placeholder", placeholder);
