@@ -666,7 +666,7 @@ function initializeTemplate() {
     function addFilterWithId(field) {
         var fieldId = field.schema.customId || field.schema.system,
             fieldLabel = "Filtrer på " + field.name,
-            fieldPlaceholder = "Filtrer på " + field.name,
+            fieldPlaceholder = "Velg " + field.name.toLowerCase(),
             fieldDesc = "";
 
         var fieldOpts = [];
