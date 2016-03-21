@@ -717,6 +717,7 @@ function initializeTemplate() {
             var fieldId = $(currentSelect).prop('id').split('-')[1];
             var selectedElements = getSelectedFieldsFrom(selector, false);
             setCookie(fieldId + AJS.params.remoteUserKey, selectedElements.join("||"), 365);
+            SearchIssues();
         });
     }
 
