@@ -45,6 +45,7 @@
         <dependency>no.nav.kiv.confluence.labs.confluence-commons:handlebarsjs</dependency>
         <dependency>no.nav.kiv.confluence.labs.confluence-commons:momentjs</dependency>
         <dependency>no.nav.kiv.confluence.labs.confluence-commons:sortablejs</dependency>
+        <dependency>no.nav.kiv.confluence.labs.confluence-commons:d3js</dependency>
         <transformation extension="less">
             <transformer key="less-transformer"/>
         </transformation>
