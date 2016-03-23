@@ -318,13 +318,50 @@ function initializeTemplate() {
                 var issue = $.parseJSON(issues[0].message).issues[0];
                 content.html(template(issue));
                 $current.show()
-                createD3dependencyDiagram(issueKey);
+
+                createD3dependencyDiagram(issueKey, transformData(issue));
             });
         });
 
         inlineDialog.find("button.close-dialog-button").live("click", function() {
             $("aui-inline-dialog2#" + $(this).attr("aria-dialog-id")).hide();
         });
+    }
+
+    function transformData(issue) {
+        var children = {};
+
+        $.each(issue.fields.issuelinks, function(index, issuelink) {
+            if (Object.has(issuelink, "outwardIssue")) {
+                var type = issuelink.type.outward;
+                processIssueLink(type, issuelink.outwardIssue, children);
+            } else { // inwardIssue
+                var type = issuelink.type.inward;
+                processIssueLink(type, issuelink.inwardIssue, children);
+            }
+        });
+
+        var childs = [];
+
+        $.each(children, function(key, value) {
+            childs.push({"name":key, children: value})
+        });
+
+        var data = {
+            'name': "{1} ({2})".assign(issue.fields.summary, issue.key),
+            'children': childs
+        }
+
+        return data;
+    }
+
+    function processIssueLink(linkType, link, output) {
+        if(Object.has(output, linkType)) {
+            output[linkType].push({'name': "{1} ({2}) Status: {3}".assign(link.fields.summary, link.key, link.fields.status.name)})
+        } else {
+            output[linkType] = [];
+            output[linkType].push({'name': "{1} ({2}) Status: {3}".assign(link.fields.summary, link.key, link.fields.status.name)})
+        }
     }
 
     function initializeFields(project, issueType) {
@@ -879,11 +916,11 @@ function initializeTemplate() {
         return "";
     }
 
-    function createD3dependencyDiagram(issueKey) {
+    function createD3dependencyDiagram(issueKey, flare) {
 
-        var margin = {top: 10, right: 10, bottom: 10, left: 10},
+        var margin = {top: 20, right: 10, bottom: 20, left: 10},
             width = 850 - margin.left - margin.right,
-            barHeight = 20,
+            barHeight = 25,
             barWidth = width * .8;
 
         var i = 0,
@@ -901,49 +938,18 @@ function initializeTemplate() {
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        //d3.json("flare.json", function(error, flare) {
-          //  if (error) throw error;
-
-        var flare = {
-            "name": "Begrep xxx",
-            "children": [
-                {
-                    "name": "er relatert til",
-                    "children": [
-                        { "name": "Begrep 1" },
-                        { "name": "Begrep 2" },
-                        { "name": "Begrep 3" }
-                    ]
-                },
-                {
-                    "name": "erstattes av",
-                    "children": [
-                        { "name": "Begrep 4" }
-                    ]
-                },
-                {
-                    "name": "duplikat av",
-                    "children": [
-                        { "name": "Begrep 5" },
-                        { "name": "Begrep 6" }
-                    ]
-                }
-            ]
-        };
-
         flare.x0 = 0;
         flare.y0 = 0;
         update(root = flare);
-        //});
 
         function update(source) {
 
-            // Compute the flattened node list. TODO use d3.layout.hierarchy.
+            // Compute the flattened node list.
             var nodes = tree.nodes(root);
 
             var height = Math.max(300, nodes.length * barHeight + margin.top + margin.bottom);
 
-            d3.select("svg").transition()
+            d3.select("aui-inline-dialog2#lightbox-dialog_" + issueKey + " svg").transition()
                 .duration(duration)
                 .attr("height", height);
 
@@ -968,13 +974,13 @@ function initializeTemplate() {
             // Enter any new nodes at the parent's previous position.
             nodeEnter.append("rect")
                 .attr("y", -barHeight / 2)
-                .attr("height", barHeight)
+                .attr("height", barHeight - 5)
                 .attr("width", barWidth)
                 .style("fill", color)
                 .on("click", click);
 
             nodeEnter.append("text")
-                .attr("dy", 3.5)
+                .attr("dy", 1.5)
                 .attr("dx", 5.5)
                 .text(function(d) { return d.name; });
 
