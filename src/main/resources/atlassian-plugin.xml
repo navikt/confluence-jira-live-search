@@ -59,6 +59,7 @@
         </transformation>
         <resource type="download" name="images/" location="/images"/>
         <resource type="download" name="confluence-jira-live-search.css" location="/css/confluence-jira-live-search.css"/>
+        <resource type="download" name="advanced-jira-live-search.css" location="/css/advanced-jira-live-search.css"/>
         <resource type="download" name="advanced.js" location="/js/advanced.js"/>
         <resource type="download" name="advanced-soy.js" location="/soy/advanced.soy"/>
     </web-resource>
