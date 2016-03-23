@@ -318,6 +318,7 @@ function initializeTemplate() {
                 var issue = $.parseJSON(issues[0].message).issues[0];
                 content.html(template(issue));
                 $current.show()
+                createD3dependencyDiagram(issueKey);
             });
         });
 
@@ -876,5 +877,178 @@ function initializeTemplate() {
             if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
         }
         return "";
+    }
+
+    function createD3dependencyDiagram(issueKey) {
+
+        var margin = {top: 10, right: 10, bottom: 10, left: 10},
+            width = 850 - margin.left - margin.right,
+            barHeight = 20,
+            barWidth = width * .8;
+
+        var i = 0,
+            duration = 400,
+            root;
+
+        var tree = d3.layout.tree()
+            .nodeSize([0, 20]);
+
+        var diagonal = d3.svg.diagonal()
+            .projection(function(d) { return [d.y, d.x]; });
+
+        var svg = d3.select("aui-inline-dialog2#lightbox-dialog_" + issueKey + " div#dialog-content").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        //d3.json("flare.json", function(error, flare) {
+          //  if (error) throw error;
+
+        var flare = {
+            "name": "Begrep xxx",
+            "children": [
+                {
+                    "name": "er relatert til",
+                    "children": [
+                        { "name": "Begrep 1" },
+                        { "name": "Begrep 2" },
+                        { "name": "Begrep 3" }
+                    ]
+                },
+                {
+                    "name": "erstattes av",
+                    "children": [
+                        { "name": "Begrep 4" }
+                    ]
+                },
+                {
+                    "name": "duplikat av",
+                    "children": [
+                        { "name": "Begrep 5" },
+                        { "name": "Begrep 6" }
+                    ]
+                }
+            ]
+        };
+
+        flare.x0 = 0;
+        flare.y0 = 0;
+        update(root = flare);
+        //});
+
+        function update(source) {
+
+            // Compute the flattened node list. TODO use d3.layout.hierarchy.
+            var nodes = tree.nodes(root);
+
+            var height = Math.max(300, nodes.length * barHeight + margin.top + margin.bottom);
+
+            d3.select("svg").transition()
+                .duration(duration)
+                .attr("height", height);
+
+            d3.select(self.frameElement).transition()
+                .duration(duration)
+                .style("height", height + "px");
+
+            // Compute the "layout".
+            nodes.forEach(function(n, i) {
+                n.x = i * barHeight;
+            });
+
+            // Update the nodes…
+            var node = svg.selectAll("g.node")
+                .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+            var nodeEnter = node.enter().append("g")
+                .attr("class", "node")
+                .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+                .style("opacity", 1e-6);
+
+            // Enter any new nodes at the parent's previous position.
+            nodeEnter.append("rect")
+                .attr("y", -barHeight / 2)
+                .attr("height", barHeight)
+                .attr("width", barWidth)
+                .style("fill", color)
+                .on("click", click);
+
+            nodeEnter.append("text")
+                .attr("dy", 3.5)
+                .attr("dx", 5.5)
+                .text(function(d) { return d.name; });
+
+            // Transition nodes to their new position.
+            nodeEnter.transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                .style("opacity", 1);
+
+            node.transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                .style("opacity", 1)
+                .select("rect")
+                .style("fill", color);
+
+            // Transition exiting nodes to the parent's new position.
+            node.exit().transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+                .style("opacity", 1e-6)
+                .remove();
+
+            // Update the links…
+            var link = svg.selectAll("path.link")
+                .data(tree.links(nodes), function(d) { return d.target.id; });
+
+            // Enter any new links at the parent's previous position.
+            link.enter().insert("path", "g")
+                .attr("class", "link")
+                .attr("d", function(d) {
+                    var o = {x: source.x0, y: source.y0};
+                    return diagonal({source: o, target: o});
+                })
+                .transition()
+                .duration(duration)
+                .attr("d", diagonal);
+
+            // Transition links to their new position.
+            link.transition()
+                .duration(duration)
+                .attr("d", diagonal);
+
+            // Transition exiting nodes to the parent's new position.
+            link.exit().transition()
+                .duration(duration)
+                .attr("d", function(d) {
+                    var o = {x: source.x, y: source.y};
+                    return diagonal({source: o, target: o});
+                })
+                .remove();
+
+            // Stash the old positions for transition.
+            nodes.forEach(function(d) {
+                d.x0 = d.x;
+                d.y0 = d.y;
+            });
+        }
+
+        // Toggle children on click.
+        function click(d) {
+            if (d.children) {
+                d._children = d.children;
+                d.children = null;
+            } else {
+                d.children = d._children;
+                d._children = null;
+            }
+            update(d);
+        }
+
+        function color(d) {
+            return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
+        }
+
     }
 });
