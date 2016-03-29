@@ -54,7 +54,7 @@
             {elseif $header == 'summary'}
                 <td class="confluenceTd" style="word-wrap: break-word;">
                     <a href="#" id="inlineDialog_{$issue.id}" class="show-lightbox" aria-controls="lightbox-dialog_{$issue.key}" data-aui-trigger> <span class="aui-icon aui-icon-small aui-iconfont-devtools-file">Open</span> {$issue.fields[$header]}</a>
-                    <aui-inline-dialog2 id="lightbox-dialog_{$issue.key}" style="width: 900px;" class="aui-layer aui-inline-dialog" data-aui-alignment="bottom left" data-aui-responds-to="toggle" aria-hidden="true" data-aui-persistent="true">
+                    <aui-inline-dialog2 id="lightbox-dialog_{$issue.key}" style="width: 900px;" class="aui-layer aui-inline-dialog" data-aui-alignment="left top" data-aui-responds-to="toggle" aria-hidden="true" data-aui-persistent="true">
                             <div class="aui-inline-dialog-contents">
                                 <div>
                                     <button aria-dialog-id="lightbox-dialog_{$issue.key}" class="aui-button close-dialog-button" style="float: right;"><span class="aui-icon aui-icon-small aui-iconfont-close-dialog">Close</span></button>
