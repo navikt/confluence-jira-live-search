@@ -321,10 +321,41 @@ function initializeTemplate() {
 
                 createD3dependencyDiagram(issueKey, transformData(issue));
             });
+
+            $("input#d-share").autocomplete({
+                source: function( request, response ) {
+                    $.ajax({
+                        url: "/rest/prototype/1/search/user-or-group.json",
+                        dataType: "json",
+                        data: {
+                            "max-results": 10,
+                            "query": request.term
+                        },
+                        success: function( data ) {
+                            var results = $.map(data.result, function(key, value) { return {label: key.title , value: key.username} })
+                            response( results );
+                        }
+                    });
+                },
+                minLength: 2,
+                select: function( event, ui ) {
+                    AJS.log( ui.item ?
+                    "Selected: " + ui.item.label :
+                    "Nothing selected, input was " + this.value);
+                },
+                open: function() {
+                    $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+                },
+                close: function() {
+                    $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+                }
+            });
         });
 
+
         inlineDialog.find("button.close-dialog-button").live("click", function() {
-            $("aui-inline-dialog2#" + $(this).attr("aria-dialog-id")).hide();
+            document.querySelector("aui-inline-dialog2#" + $(this).attr("aria-dialog-id")).hide();
+            //$("aui-inline-dialog2#" + $(this).attr("aria-dialog-id")).hide();
         });
     }
 
