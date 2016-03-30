@@ -320,6 +320,11 @@ function initializeTemplate() {
                 $current.show();
 
                 createD3dependencyDiagram(issueKey, transformData(issue));
+
+                $("html, body").animate({
+                    scrollTop: $current.offset().top - 50
+                }, 1);
+
             });
 
             // Initialize the autocomplete share field.

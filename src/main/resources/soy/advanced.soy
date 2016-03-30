@@ -53,7 +53,7 @@
                 <td class="confluenceTd" style="word-wrap: break-word;"><a href="http://jira.adeo.no/browse/{$issue.key}" target="_new">{$issue.key}</a></td>
             {elseif $header == 'summary'}
                 <td class="confluenceTd" style="word-wrap: break-word;">
-                    <a href="#" id="inlineDialog_{$issue.id}" class="show-lightbox" aria-controls="lightbox-dialog_{$issue.key}" data-aui-trigger> <span class="aui-icon aui-icon-small aui-iconfont-devtools-file">Open</span> {$issue.fields[$header]}</a>
+                    <a id="inlineDialog_{$issue.id}" class="show-lightbox" aria-controls="lightbox-dialog_{$issue.key}" data-aui-trigger> <span class="aui-icon aui-icon-small aui-iconfont-devtools-file">Open</span> {$issue.fields[$header]}</a>
                     <aui-inline-dialog2 id="lightbox-dialog_{$issue.key}" style="width: 900px;" class="aui-layer aui-inline-dialog" data-aui-alignment="left top" data-aui-responds-to="toggle" aria-hidden="true" data-aui-persistent="true">
                             <div class="aui-inline-dialog-contents">
                                 <div>
