@@ -357,6 +357,37 @@ function initializeTemplate() {
                 }
             });
 
+            $("button#share").click(function(evt) {
+                var $shareInput = $current.find("input#d-share");
+                var shareTo = $shareInput.val();
+
+                if (shareTo) {
+                    $.ajax({
+                        url: "/rest/jirasearch/latest/share",
+                        cache: false,
+                        type: "POST",
+                        dataType: "json",
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            username: encodeURIComponent(shareTo),
+                            issue: issueKey
+                        }),
+                        success: function () {
+                            $shareInput.val("");
+                            require(['aui/flag'], function (flag) {
+                                flag({
+                                    type: "success",
+                                    title: "",
+                                    close: "auto",
+                                    body: "<span class=\"aui-icon aui-icon-small aui-iconfont-approve\" style=\"color: green;\"></span> Shared!"
+                                });
+                            });
+                        },
+                        timeout: 30000
+                    });
+                }
+            });
+        });
 
         inlineDialog.find("button.close-dialog-button").live("click", function() {
             document.querySelector("aui-inline-dialog2#" + $(this).attr("aria-dialog-id")).hide();
