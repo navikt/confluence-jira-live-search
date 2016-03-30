@@ -317,11 +317,12 @@ function initializeTemplate() {
                 var template = Handlebars.compile(temp[0].value.template);
                 var issue = $.parseJSON(issues[0].message).issues[0];
                 content.html(template(issue));
-                $current.show()
+                $current.show();
 
                 createD3dependencyDiagram(issueKey, transformData(issue));
             });
 
+            // Initialize the autocomplete share field.
             $("input#d-share").autocomplete({
                 source: function( request, response ) {
                     $.ajax({
@@ -332,7 +333,7 @@ function initializeTemplate() {
                             "query": request.term
                         },
                         success: function( data ) {
-                            var results = $.map(data.result, function(key, value) { return {label: key.title , value: key.username} })
+                            var results = $.map(data.result, function(elm) { return {label: elm.title , value: elm.username} });
                             response( results );
                         }
                     });
@@ -350,12 +351,10 @@ function initializeTemplate() {
                     $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
                 }
             });
-        });
 
 
         inlineDialog.find("button.close-dialog-button").live("click", function() {
             document.querySelector("aui-inline-dialog2#" + $(this).attr("aria-dialog-id")).hide();
-            //$("aui-inline-dialog2#" + $(this).attr("aria-dialog-id")).hide();
         });
     }
 
