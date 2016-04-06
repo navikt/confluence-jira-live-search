@@ -421,7 +421,8 @@ function initializeTemplate() {
         });
 
         var data = {
-            'name': "{1} ({2})".assign(issue.fields.summary, issue.key),
+            'name': "{1}".assign(issue.fields.summary),
+            'key': issue.key,
             'children': childs
         }
 
@@ -430,15 +431,11 @@ function initializeTemplate() {
 
     function processIssueLink(linkType, link, output) {
         if(Object.has(output, linkType)) {
-            output[linkType].push({'name': "{1} ({2}) {3}".assign(link.fields.summary, link.key, link.fields.status.name)})
+            output[linkType].push({'name': "{1} Status: {2}".assign(link.fields.summary, link.fields.status.name), 'key': link.key})
         } else {
             output[linkType] = [];
-            output[linkType].push({'name': "{1} ({2}) {3}".assign(link.fields.summary, link.key, getStatusLozenge(link.fields.status))})
+            output[linkType].push({'name': "{1} Status: {2}".assign(link.fields.summary, link.fields.status.name), 'key': link.key})
         }
-    }
-
-    function getStatusLozenge(status) {
-
     }
 
     function initializeFields(project, issueType) {
@@ -1119,14 +1116,18 @@ function initializeTemplate() {
 
         // Toggle children on click.
         function click(d) {
-            if (d.children) {
-                d._children = d.children;
-                d.children = null;
+            if (d.key) {
+                window.open("http://jira.adeo.no/browse/" + d.key, '_blank');
             } else {
-                d.children = d._children;
-                d._children = null;
+                if (d.children) {
+                    d._children = d.children;
+                    d.children = null;
+                } else {
+                    d.children = d._children;
+                    d._children = null;
+                }
+                update(d);
             }
-            update(d);
         }
 
         function color(d) {
