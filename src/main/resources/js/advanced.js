@@ -316,15 +316,15 @@ function initializeTemplate() {
         inlineDialog.live("aui-layer-show", function(e) {
 
             var $current = $(this),
-                content = $current.find("div#dialog-content"),
-                issueKey = $current.prop('id').split("_")[1];
+                issueKey = $current.prop('id').split("_")[1],
+                content = $current.find("div#tabs-" + issueKey + " div#dialog-content");
 
             $.when(getPageProperty(AJS.params.pageId, "lightboxTemplate"), getIssueFromJira(issueKey)).done(function(temp, issues) {
 
                 var template = Handlebars.compile(temp[0].value.template);
                 var issue = $.parseJSON(issues[0].message).issues[0];
                 content.html(template(issue));
-                $current.show();
+                //$current.show();
 
                 createD3dependencyDiagram(issueKey, transformData(issue));
 
@@ -1007,7 +1007,7 @@ function initializeTemplate() {
         var diagonal = d3.svg.diagonal()
             .projection(function(d) { return [d.y, d.x]; });
 
-        var svg = d3.select("aui-inline-dialog2#lightbox-dialog_" + issueKey + " div#dialog-content").append("svg")
+        var svg = d3.select("aui-inline-dialog2#lightbox-dialog_" + issueKey + " div#tabs-" + issueKey + " div#dialog-content").append("svg")
             .attr("width", width + margin.left + margin.right)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -1023,7 +1023,7 @@ function initializeTemplate() {
 
             var height = Math.max(300, nodes.length * barHeight + margin.top + margin.bottom);
 
-            d3.select("aui-inline-dialog2#lightbox-dialog_" + issueKey + " svg").transition()
+            d3.select("aui-inline-dialog2#lightbox-dialog_" + issueKey + " div#tabs-" + issueKey + " div#dialog-content svg").transition()
                 .duration(duration)
                 .attr("height", height);
 

@@ -59,16 +59,25 @@
                                 <div>
                                     <button aria-dialog-id="lightbox-dialog_{$issue.key}" class="aui-button close-dialog-button" style="float: right;"><span class="aui-icon aui-icon-small aui-iconfont-close-dialog">Close</span></button>
                                 </div>
-                                <form class="aui aui-dd-parent" target="_blank" method="link" action="http://jira.adeo.no/browse/{$issue.key}">
-                                <div id="dialog-content">
-                                    <span class="aui-icon aui-icon-large aui-icon-wait"></span> Loading data...
+                                <div class="aui-tabs horizontal-tabs" id="tabs-lightbox">
+                                    <ul class="tabs-menu">
+                                        <li class="menu-item active-tab">
+                                            <a href="#tabs-{$issue.key}"><strong>{$issue.fields.summary}</strong></a>
+                                        </li>
+                                    </ul>
+                                    <div class="tabs-pane active-pane" id="tabs-{$issue.key}">
+                                       <form class="aui aui-dd-parent" target="_blank" method="link" action="http://jira.adeo.no/browse/{$issue.key}">
+                                           <div id="dialog-content">
+                                               <span class="aui-icon aui-icon-large aui-icon-wait"></span> Loading data...
+                                           </div>
+                                           <div>
+                                              <button class="aui-button aui-button-primary" style="float: right;" type="submit" target="_blank"><span class="aui-icon aui-icon-small aui-iconfont-jira">Open </span> Åpne i JIRA</button>
+                                              <button type="button" id="share" class="aui-button" style="float: right; margin-right: 10px;"><span class="aui-icon aui-icon-small aui-iconfont-share">Share </span> Del</button>
+                                              <input class="text" style="float: right;" type="text" id="d-share" name="d-share" title="Del begrepet med...">
+                                           </div>
+                                       </form>
+                                    </div>
                                 </div>
-                                <div>
-                                   <button class="aui-button aui-button-primary" style="float: right;" type="submit" target="_blank"><span class="aui-icon aui-icon-small aui-iconfont-jira">Open </span> Åpne i JIRA</button>
-                                   <button type="button" id="share" class="aui-button" style="float: right; margin-right: 10px;"><span class="aui-icon aui-icon-small aui-iconfont-share">Share </span> Del</button>
-                                   <input class="text" style="float: right;" type="text" id="d-share" name="d-share" title="Del begrepet med...">
-                                </div>
-                                </form>
                             </div>
                     </aui-inline-dialog2>
                 </td>
