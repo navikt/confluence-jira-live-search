@@ -267,6 +267,13 @@ function initializeTemplate() {
         showHideConfigMenu();
         showHideFilterMenu();
         initializeLightbox();
+
+        Handlebars.registerHelper('equals', function(v1, v2, options) {
+            if (v1 === v2) {
+                return options.fn(this);
+            }
+            return options.inverse(this);
+        });
     }
 
     function showHideConfigMenu() {
@@ -357,11 +364,15 @@ function initializeTemplate() {
 
     function processIssueLink(linkType, link, output) {
         if(Object.has(output, linkType)) {
-            output[linkType].push({'name': "{1} ({2}) Status: {3}".assign(link.fields.summary, link.key, link.fields.status.name)})
+            output[linkType].push({'name': "{1} ({2}) {3}".assign(link.fields.summary, link.key, link.fields.status.name)})
         } else {
             output[linkType] = [];
-            output[linkType].push({'name': "{1} ({2}) Status: {3}".assign(link.fields.summary, link.key, link.fields.status.name)})
+            output[linkType].push({'name': "{1} ({2}) {3}".assign(link.fields.summary, link.key, getStatusLozenge(link.fields.status))})
         }
+    }
+
+    function getStatusLozenge(status) {
+
     }
 
     function initializeFields(project, issueType) {

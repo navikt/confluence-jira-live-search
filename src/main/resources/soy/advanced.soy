@@ -74,6 +74,19 @@
                 <td class="confluenceTd" style="word-wrap: break-word;">{$issue.fields['updated']}</td>
             {elseif $header == 'updated'}
                 <td class="confluenceTd" style="word-wrap: break-word;">{$issue.fields['created']}</td>
+            {elseif $header == 'status'}
+                {let $fieldValue: $issue.fields['status'] /}
+                {let $statusColor: $fieldValue.statusCategory.colorName /}
+
+                <td class="confluenceTd" style="word-wrap: break-word;">
+                {if $statusColor == 'green'}
+                   <span class="aui-lozenge aui-lozenge-success">{$fieldValue.name}</span>
+                {elseif $statusColor == 'yellow'}
+                   <span class="aui-lozenge aui-lozenge-current">{$fieldValue.name}</span>
+                {else}
+                    <span class="aui-lozenge aui-lozenge-complete">{$fieldValue.name}</span>
+                {/if}
+                </td>
             {else}
                 {let $fieldValue: $issue.fields[$header] /}
                 {if $fieldValue == null}
