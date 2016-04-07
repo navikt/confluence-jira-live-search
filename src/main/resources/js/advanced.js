@@ -152,6 +152,7 @@ AJS.toInit(function ($) {
             if (Object.has(issue.fields, "created")) {
                 issue.fields.created = moment(issue.fields.created).format('DD.MM.YY hh.mm')
             }
+            issue.dialogId = Math.random().toString(36).substring(2, 8)
         });
 
         $.when(renameFieldNames(fieldNames).then(function() {
@@ -319,8 +320,9 @@ function initializeTemplate() {
 
             var $current = $(this),
                 id = $current.prop('id'),
+                dialogId = $current.attr('data-dialog-id'),
                 issueKey = $current.prop('id').split("_")[1],
-                content = $current.find("div#tabs-" + issueKey + " div#dialog-content-" + issueKey);
+                content = $current.find("div#tabs-" + issueKey + "-" + dialogId + " div#dialog-content-" + issueKey);
 
             if(typeof initializeLightboxes[id] === 'undefined') {
                 initializeLightboxes[id] = id;
@@ -331,7 +333,7 @@ function initializeTemplate() {
                     var issue = $.parseJSON(issues[0].message).issues[0];
                     content.html(template(issue));
 
-                    createD3dependencyDiagram(issueKey, transformData(issue));
+                    createD3dependencyDiagram(issueKey, dialogId, transformData(issue));
 
                     $("html, body").animate({
                         scrollTop: $current.offset().top - 50
@@ -440,9 +442,10 @@ function initializeTemplate() {
 
         var $context = $(this);
         var issueKey = $context.attr('data-issue-key'),
+            dialogId = $context.closest("aui-inline-dialog2").attr('data-dialog-id'),
             tabPanes = $context.closest("aui-inline-dialog2 div.aui-tabs"),
             tabMenu = tabPanes.find("ul.tabs-menu"),
-            tabSelector = tabMenu.find("a[href=#tabs-" + issueKey + "]");
+            tabSelector = tabMenu.find("a[href=#tabs-" + issueKey + "-" + dialogId + "]");
 
         if (tabSelector.size() > 0) {
             AJS.tabs.change(tabSelector);
@@ -455,23 +458,25 @@ function initializeTemplate() {
 
                 var newTab = NAV.KIV.Templates.LiveSearch.newTab({
                     "issueKey": issueKey,
-                    "issueSummary": issue.fields.summary
+                    "issueSummary": issue.fields.summary,
+                    "dialogId": dialogId
                 });
                 tabMenu.append(newTab);
 
                 var newTabPane = NAV.KIV.Templates.LiveSearch.newTabPane({
-                    "issueKey": issueKey
+                    "issueKey": issueKey,
+                    "dialogId": dialogId
                 });
                 tabPanes.append(newTabPane);
                 AJS.tabs.setup();
 
-                tabPanes.find("div#tabs-" + issueKey + " div#dialog-content-" + issueKey).html(template(issue));
+                tabPanes.find("div#tabs-" + issueKey + "-" + dialogId + " div#dialog-content-" + issueKey).html(template(issue));
 
-                createD3dependencyDiagram(issueKey, transformData(issue));
+                createD3dependencyDiagram(issueKey, dialogId, transformData(issue));
 
-                AJS.tabs.change($("a[href=#tabs-" + issueKey + "]"));
+                AJS.tabs.change($("a[href=#tabs-" + issueKey + "-" + dialogId + "]"));
 
-                addAutocomplete(tabPanes.find("div#tabs-" + issueKey + " div.sharePane input[name='d-share']"));
+                addAutocomplete(tabPanes.find("div#tabs-" + issueKey + "-" + dialogId + " div.sharePane input[name='d-share']"));
 
             });
         }
@@ -1067,7 +1072,7 @@ function initializeTemplate() {
         return "";
     }
 
-    function createD3dependencyDiagram(issueKey, flare) {
+    function createD3dependencyDiagram(issueKey, dialogId, flare) {
 
         var margin = {top: 20, right: 10, bottom: 20, left: 10},
             width = 850 - margin.left - margin.right,
@@ -1084,7 +1089,7 @@ function initializeTemplate() {
         var diagonal = d3.svg.diagonal()
             .projection(function(d) { return [d.y, d.x]; });
 
-        var svg = d3.select("aui-inline-dialog2 div#tabs-" + issueKey + " div#dialog-content-" + issueKey).append("svg")
+        var svg = d3.select("aui-inline-dialog2 div#tabs-" + issueKey + "-" + dialogId + " div#dialog-content-" + issueKey).append("svg")
             .attr("width", width + margin.left + margin.right)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -1100,7 +1105,7 @@ function initializeTemplate() {
 
             var height = Math.max(300, nodes.length * barHeight + margin.top + margin.bottom);
 
-            d3.select("aui-inline-dialog2 div#tabs-" + issueKey + " div#dialog-content-" + issueKey + " svg").transition()
+            d3.select("aui-inline-dialog2 div#tabs-" + issueKey + "-" + dialogId + " div#dialog-content-" + issueKey + " svg").transition()
                 .duration(duration)
                 .attr("height", height);
 

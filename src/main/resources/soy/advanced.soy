@@ -4,19 +4,21 @@
 * Creates a new Tab
 * @param issueKey
 * @param issueSummary
+* @param dialogId
 */
 {template .newTab}
 <li class="menu-item">
-    <a href="#tabs-{$issueKey}"><strong>{$issueSummary}</strong></a>
+    <a href="#tabs-{$issueKey}-{$dialogId}"><strong>{$issueSummary}</strong></a>
 </li>
 {/template}
 
 /**
 * Creates a new Tab Pane
 * @param issueKey
+* @param dialogId
 */
 {template .newTabPane}
-<div class="tabs-pane" id="tabs-{$issueKey}">
+<div class="tabs-pane" id="tabs-{$issueKey}-{$dialogId}">
    <form class="aui aui-dd-parent" target="_blank" method="link" action="http://jira.adeo.no/browse/{$issueKey}">
        <div id="dialog-content-{$issueKey}">
            <span class="aui-icon aui-icon-large aui-icon-wait"></span> Loading data...
@@ -87,7 +89,7 @@
             {elseif $header == 'summary'}
                 <td class="confluenceTd" style="word-wrap: break-word;">
                     <a id="inlineDialog_{$issue.id}" class="show-lightbox" aria-controls="lightbox-dialog_{$issue.key}" data-aui-trigger> <span class="aui-icon aui-icon-small aui-iconfont-devtools-file">Open</span> {$issue.fields[$header]}</a>
-                    <aui-inline-dialog2 id="lightbox-dialog_{$issue.key}" style="width: 900px;" class="aui-layer aui-inline-dialog" data-aui-alignment="left top" data-aui-responds-to="toggle" aria-hidden="true" data-aui-persistent="true">
+                    <aui-inline-dialog2 id="lightbox-dialog_{$issue.key}" data-dialog-id="{$issue.dialogId}" style="width: 900px;" class="aui-layer aui-inline-dialog" data-aui-alignment="left top" data-aui-responds-to="toggle" aria-hidden="true" data-aui-persistent="true">
                             <div class="aui-inline-dialog-contents">
                                 <div>
                                     <button aria-dialog-id="lightbox-dialog_{$issue.key}" class="aui-button close-dialog-button" style="float: right;"><span class="aui-icon aui-icon-small aui-iconfont-close-dialog">Close</span></button>
@@ -95,10 +97,10 @@
                                 <div class="aui-tabs horizontal-tabs" id="tabs-lightbox-{$issue.key}">
                                     <ul class="tabs-menu">
                                         <li class="menu-item active-tab">
-                                            <a href="#tabs-{$issue.key}"><strong>{$issue.fields.summary}</strong></a>
+                                            <a href="#tabs-{$issue.key}-{$issue.dialogId}"><strong>{$issue.fields.summary}</strong></a>
                                         </li>
                                     </ul>
-                                    <div class="tabs-pane active-pane" id="tabs-{$issue.key}">
+                                    <div class="tabs-pane active-pane" id="tabs-{$issue.key}-{$issue.dialogId}">
                                        <form class="aui aui-dd-parent" target="_blank" method="link" action="http://jira.adeo.no/browse/{$issue.key}">
                                            <div id="dialog-content-{$issue.key}">
                                                <span class="aui-icon aui-icon-large aui-icon-wait"></span> Loading data...
