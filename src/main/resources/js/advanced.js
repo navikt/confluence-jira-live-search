@@ -317,14 +317,13 @@ function initializeTemplate() {
 
             var $current = $(this),
                 issueKey = $current.prop('id').split("_")[1],
-                content = $current.find("div#tabs-" + issueKey + " div#dialog-content");
+                content = $current.find("div#tabs-" + issueKey + " div#dialog-content-" + issueKey);
 
             $.when(getPageProperty(AJS.params.pageId, "lightboxTemplate"), getIssueFromJira(issueKey)).done(function(temp, issues) {
 
                 var template = Handlebars.compile(temp[0].value.template);
                 var issue = $.parseJSON(issues[0].message).issues[0];
                 content.html(template(issue));
-                //$current.show();
 
                 createD3dependencyDiagram(issueKey, transformData(issue));
 
@@ -333,6 +332,8 @@ function initializeTemplate() {
                 }, 1);
 
             });
+
+            $current.find("a[data-issue-key]").live('click', newTabHandler);
 
             // Initialize the autocomplete share field.
             $("input#d-share").autocomplete({
@@ -399,6 +400,47 @@ function initializeTemplate() {
         inlineDialog.find("button.close-dialog-button").live("click", function() {
             document.querySelector("aui-inline-dialog2#" + $(this).attr("aria-dialog-id")).hide();
         });
+    }
+
+    function newTabHandler(evt) {
+        evt.preventDefault();
+
+        var $context = $(this);
+        var issueKey = $context.attr('data-issue-key'),
+            tabPanes = $context.closest("aui-inline-dialog2 div.aui-tabs"),
+            tabMenu = tabPanes.find("ul.tabs-menu"),
+            tabSelector = tabMenu.find("a[href=#tabs-" + issueKey + "]");
+
+        if (tabSelector.size() > 0) {
+            AJS.tabs.change(tabSelector);
+
+        } else {
+            $.when(getPageProperty(AJS.params.pageId, "lightboxTemplate"), getIssueFromJira(issueKey)).done(function(temp, issues) {
+
+                var template = Handlebars.compile(temp[0].value.template);
+                var issue = $.parseJSON(issues[0].message).issues[0];
+
+                var newTab = NAV.KIV.Templates.LiveSearch.newTab({
+                    "issueKey": issueKey,
+                    "issueSummary": issue.fields.summary
+                });
+                tabMenu.append(newTab);
+
+                var newTabPane = NAV.KIV.Templates.LiveSearch.newTabPane({
+                    "issueKey": issueKey
+                });
+                tabPanes.append(newTabPane);
+                AJS.tabs.setup()
+
+                tabPanes.find("div#tabs-" + issueKey + " div#dialog-content-" + issueKey).html(template(issue));
+                //$current.show();
+
+                createD3dependencyDiagram(issueKey, transformData(issue));
+
+                AJS.tabs.change($("a[href=#tabs-" + issueKey + "]"));
+
+            });
+        }
     }
 
     function transformData(issue) {
@@ -1007,7 +1049,7 @@ function initializeTemplate() {
         var diagonal = d3.svg.diagonal()
             .projection(function(d) { return [d.y, d.x]; });
 
-        var svg = d3.select("aui-inline-dialog2#lightbox-dialog_" + issueKey + " div#tabs-" + issueKey + " div#dialog-content").append("svg")
+        var svg = d3.select("aui-inline-dialog2 div#tabs-" + issueKey + " div#dialog-content-" + issueKey).append("svg")
             .attr("width", width + margin.left + margin.right)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -1023,7 +1065,7 @@ function initializeTemplate() {
 
             var height = Math.max(300, nodes.length * barHeight + margin.top + margin.bottom);
 
-            d3.select("aui-inline-dialog2#lightbox-dialog_" + issueKey + " div#tabs-" + issueKey + " div#dialog-content svg").transition()
+            d3.select("aui-inline-dialog2 div#tabs-" + issueKey + " div#dialog-content-" + issueKey + " svg").transition()
                 .duration(duration)
                 .attr("height", height);
 

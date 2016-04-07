@@ -1,6 +1,31 @@
 {namespace NAV.KIV.Templates.LiveSearch}
 
 /**
+* Creates a new Tab
+* @param issueKey
+* @param issueSummary
+*/
+{template .newTab}
+<li class="menu-item">
+    <a href="#tabs-{$issueKey}"><strong>{$issueSummary}</strong></a>
+</li>
+{/template}
+
+/**
+* Creates a new Tab Pane
+* @param issueKey
+*/
+{template .newTabPane}
+<div class="tabs-pane" id="tabs-{$issueKey}">
+   <form class="aui aui-dd-parent" target="_blank" method="link" action="http://jira.adeo.no/browse/{$issueKey}">
+       <div id="dialog-content-{$issueKey}">
+           <span class="aui-icon aui-icon-large aui-icon-wait"></span> Loading data...
+       </div>
+   </form>
+</div>
+{/template}
+
+/**
 * Creates a search field
 * @param fieldId
 * @param fieldLabel
@@ -59,7 +84,7 @@
                                 <div>
                                     <button aria-dialog-id="lightbox-dialog_{$issue.key}" class="aui-button close-dialog-button" style="float: right;"><span class="aui-icon aui-icon-small aui-iconfont-close-dialog">Close</span></button>
                                 </div>
-                                <div class="aui-tabs horizontal-tabs" id="tabs-lightbox">
+                                <div class="aui-tabs horizontal-tabs" id="tabs-lightbox-{$issue.key}">
                                     <ul class="tabs-menu">
                                         <li class="menu-item active-tab">
                                             <a href="#tabs-{$issue.key}"><strong>{$issue.fields.summary}</strong></a>
@@ -67,17 +92,17 @@
                                     </ul>
                                     <div class="tabs-pane active-pane" id="tabs-{$issue.key}">
                                        <form class="aui aui-dd-parent" target="_blank" method="link" action="http://jira.adeo.no/browse/{$issue.key}">
-                                           <div id="dialog-content">
+                                           <div id="dialog-content-{$issue.key}">
                                                <span class="aui-icon aui-icon-large aui-icon-wait"></span> Loading data...
-                                           </div>
-                                           <div>
-                                              <button class="aui-button aui-button-primary" style="float: right;" type="submit" target="_blank"><span class="aui-icon aui-icon-small aui-iconfont-jira">Open </span> Åpne i JIRA</button>
-                                              <button type="button" id="share" class="aui-button" style="float: right; margin-right: 10px;"><span class="aui-icon aui-icon-small aui-iconfont-share">Share </span> Del</button>
-                                              <input class="text" style="float: right;" type="text" id="d-share" name="d-share" title="Del begrepet med...">
                                            </div>
                                        </form>
                                     </div>
                                 </div>
+                                <div>
+                                  <button class="aui-button aui-button-primary" style="float: right;" type="submit" target="_blank"><span class="aui-icon aui-icon-small aui-iconfont-jira">Open </span> Åpne i JIRA</button>
+                                  <button type="button" id="share" class="aui-button" style="float: right; margin-right: 10px;"><span class="aui-icon aui-icon-small aui-iconfont-share">Share </span> Del</button>
+                                  <input class="text" style="float: right;" type="text" id="d-share" name="d-share" title="Del begrepet med...">
+                               </div>
                             </div>
                     </aui-inline-dialog2>
                 </td>
