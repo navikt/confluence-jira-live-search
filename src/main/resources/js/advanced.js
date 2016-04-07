@@ -342,38 +342,21 @@ function initializeTemplate() {
                 $current.find("a[data-issue-key]").live('click', newTabHandler);
 
                 // Initialize the autocomplete share field.
-                $current.find("input#d-share").autocomplete({
-                    source: function( request, response ) {
-                        $.ajax({
-                            url: "/rest/prototype/1/search/user-or-group.json",
-                            dataType: "json",
-                            data: {
-                                "max-results": 10,
-                                "query": request.term
-                            },
-                            success: function( data ) {
-                                var results = $.map(data.result, function(elm) { return {label: elm.title , value: elm.username} });
-                                response( results );
-                            }
-                        });
-                    },
-                    minLength: 2,
-                    select: function( event, ui ) {
-                        AJS.log( ui.item ?
-                        "Selected: " + ui.item.label :
-                        "Nothing selected, input was " + this.value);
-                    },
-                    open: function() {
-                        $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
-                    },
-                    close: function() {
-                        $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+                addAutocomplete($current.find("input[name='d-share']"));
+
+                $current.find("button.share").live('click', function(evt) {
+                    if ($(this).siblings("div.sharePane").is(':visible')) {
+                        $(this).siblings("div.sharePane").css('display', 'none');
+                    } else {
+                        $(this).siblings("div.sharePane").css('display', 'inline-block');
                     }
+
                 });
 
-                $current.find("button#share").click(function(evt) {
-                    var $shareInput = $current.find("input#d-share");
+                $current.find("button.share-submit").live('click', function() {
+                    var $shareInput = $(this).siblings("input[name='d-share']");
                     var shareTo = $shareInput.val();
+                    var self = $(this);
 
                     if (shareTo) {
                         $.ajax({
@@ -384,7 +367,7 @@ function initializeTemplate() {
                             contentType: 'application/json',
                             data: JSON.stringify({
                                 username: encodeURIComponent(shareTo),
-                                issue: issueKey
+                                issue: self.attr('data-issue-id')
                             }),
                             success: function () {
                                 $shareInput.val("");
@@ -396,6 +379,7 @@ function initializeTemplate() {
                                         body: "<span class=\"aui-icon aui-icon-small aui-iconfont-approve\" style=\"color: green;\"></span> Shared!"
                                     });
                                 });
+                                self.closest("div.sharePane").css('display', 'none');
                             },
                             timeout: 30000
                         });
@@ -407,6 +391,37 @@ function initializeTemplate() {
 
         inlineDialog.find("button.close-dialog-button").live("click", function() {
             document.querySelector("aui-inline-dialog2#" + $(this).attr("aria-dialog-id")).hide();
+        });
+    }
+
+    function addAutocomplete($input) {
+        $input.autocomplete({
+            source: function( request, response ) {
+                $.ajax({
+                    url: "/rest/prototype/1/search/user-or-group.json",
+                    dataType: "json",
+                    data: {
+                        "max-results": 10,
+                        "query": request.term
+                    },
+                    success: function( data ) {
+                        var results = $.map(data.result, function(elm) { return {label: elm.title , value: elm.username} });
+                        response( results );
+                    }
+                });
+            },
+            minLength: 2,
+            select: function( event, ui ) {
+                AJS.log( ui.item ?
+                "Selected: " + ui.item.label :
+                "Nothing selected, input was " + this.value);
+            },
+            open: function() {
+                $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+            },
+            close: function() {
+                $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+            }
         });
     }
 
@@ -438,14 +453,15 @@ function initializeTemplate() {
                     "issueKey": issueKey
                 });
                 tabPanes.append(newTabPane);
-                AJS.tabs.setup()
+                AJS.tabs.setup();
 
                 tabPanes.find("div#tabs-" + issueKey + " div#dialog-content-" + issueKey).html(template(issue));
-                //$current.show();
 
                 createD3dependencyDiagram(issueKey, transformData(issue));
 
                 AJS.tabs.change($("a[href=#tabs-" + issueKey + "]"));
+
+                addAutocomplete(tabPanes.find("div#tabs-" + issueKey + " div.sharePane input[name='d-share']"));
 
             });
         }

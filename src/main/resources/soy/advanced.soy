@@ -21,6 +21,14 @@
        <div id="dialog-content-{$issueKey}">
            <span class="aui-icon aui-icon-large aui-icon-wait"></span> Loading data...
        </div>
+       <div class="inline-block" style="display: inline;">
+       <button type="button" id="share-{$issueKey}" class="aui-button share" style="margin-right: 10px;"><span class="aui-icon aui-icon-small aui-iconfont-share">Share </span></button>
+        <div class="sharePane" style="display: none; width: 350px;">
+          <input class="text" type="text" name="d-share" title="Del begrepet med..." placeholder="Skriv navn">
+          <button type="button" data-issue-id="{$issueKey}" class="aui-button share-submit" style="margin-right: 10px;">Del</button>
+        </div>
+       <button class="aui-button" style="float: right;" type="submit" target="_blank"><span class="aui-icon aui-icon-small aui-iconfont-jira">Open </span> Åpne i JIRA</button>
+   </div>
    </form>
 </div>
 {/template}
@@ -95,14 +103,18 @@
                                            <div id="dialog-content-{$issue.key}">
                                                <span class="aui-icon aui-icon-large aui-icon-wait"></span> Loading data...
                                            </div>
+                                           <div class="inline-block" style="display: inline;">
+                                                <button type="button" id="share-{$issue.key}" class="aui-button share" style="margin-right: 10px;"><span class="aui-icon aui-icon-small aui-iconfont-share">Share </span></button>
+                                                 <div class="sharePane" style="display: none; width: 350px;">
+                                                   <input class="text" type="text" name="d-share" title="Del begrepet med..." placeholder="Skriv navn">
+                                                   <button type="button" data-issue-id="{$issue.key}" class="aui-button share-submit" style="margin-right: 10px;">Del</button>
+                                                 </div>
+                                                <button class="aui-button" style="float: right;" type="submit" target="_blank"><span class="aui-icon aui-icon-small aui-iconfont-jira">Open </span> Åpne i JIRA</button>
+                                            </div>
                                        </form>
                                     </div>
                                 </div>
-                                <div>
-                                  <button class="aui-button aui-button-primary" style="float: right;" type="submit" target="_blank"><span class="aui-icon aui-icon-small aui-iconfont-jira">Open </span> Åpne i JIRA</button>
-                                  <button type="button" id="share" class="aui-button" style="float: right; margin-right: 10px;"><span class="aui-icon aui-icon-small aui-iconfont-share">Share </span> Del</button>
-                                  <input class="text" style="float: right;" type="text" id="d-share" name="d-share" title="Del begrepet med...">
-                               </div>
+
                             </div>
                     </aui-inline-dialog2>
                 </td>
