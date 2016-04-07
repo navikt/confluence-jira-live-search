@@ -489,6 +489,7 @@ function initializeTemplate() {
         var data = {
             'name': "{1}".assign(issue.fields.summary),
             'key': issue.key,
+            'color': "white",
             'children': childs
         }
 
@@ -1197,7 +1198,7 @@ function initializeTemplate() {
         }
 
         function color(d) {
-            return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
+            return d._children ? "#3182bd" : d.children ? (d.color ? d.color: "#c6dbef") : (d.color ? d.color: "#fd8d3c");
         }
 
     }

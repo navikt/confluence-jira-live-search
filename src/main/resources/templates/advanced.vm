@@ -28,7 +28,7 @@
 
         </fieldset>
 
-        <button id="configuration-toggle" type="button" class="aui-button aui-button-link hidden">Advanced (+)</button>
+        <button id="configuration-toggle" type="button" class="aui-button aui-button-link hidden">Advanced</button>
         <div class="toggle" style="display: none;">
             <h3>Search configuration</h3>
             <fieldset>
@@ -104,7 +104,7 @@
 
 </div>
 <br/>
-<button id="filters-toggle" type="button" class="aui-button aui-button-link hidden">Filters (+)</button>
+<button id="filters-toggle" type="button" class="aui-button aui-button-link hidden">Filter</button>
 <div id="search-filters" style="width: 100%; display: none;")>
     <form class="aui top-label" name="filterform" onsubmit="return false;">
         <fieldset id="filterSection" class="top-label">

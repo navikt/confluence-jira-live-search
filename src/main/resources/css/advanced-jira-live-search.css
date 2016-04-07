@@ -20,3 +20,8 @@ path.link {
 div.inline-block {
     display: inline-block;
 }
+
+label.label-view {
+    font-weight: bold;
+    color: #c6dbef;
+}
