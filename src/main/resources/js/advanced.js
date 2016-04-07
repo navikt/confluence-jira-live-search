@@ -15,6 +15,8 @@ AJS.toInit(function ($) {
         $spinnerIcon = $('span.spinner-icon'),
         $errorMessage = $("div.errorMessages");
 
+    var initializeLightboxes = {};
+
     initializeFields(project, issueType);
     initializeTemplate();
     initializeApp();
@@ -316,85 +318,91 @@ function initializeTemplate() {
         inlineDialog.live("aui-layer-show", function(e) {
 
             var $current = $(this),
+                id = $current.prop('id'),
                 issueKey = $current.prop('id').split("_")[1],
                 content = $current.find("div#tabs-" + issueKey + " div#dialog-content-" + issueKey);
 
-            $.when(getPageProperty(AJS.params.pageId, "lightboxTemplate"), getIssueFromJira(issueKey)).done(function(temp, issues) {
+            if(typeof initializeLightboxes[id] === 'undefined') {
+                initializeLightboxes[id] = id;
 
-                var template = Handlebars.compile(temp[0].value.template);
-                var issue = $.parseJSON(issues[0].message).issues[0];
-                content.html(template(issue));
+                $.when(getPageProperty(AJS.params.pageId, "lightboxTemplate"), getIssueFromJira(issueKey)).done(function(temp, issues) {
 
-                createD3dependencyDiagram(issueKey, transformData(issue));
+                    var template = Handlebars.compile(temp[0].value.template);
+                    var issue = $.parseJSON(issues[0].message).issues[0];
+                    content.html(template(issue));
 
-                $("html, body").animate({
-                    scrollTop: $current.offset().top - 50
-                }, 1);
+                    createD3dependencyDiagram(issueKey, transformData(issue));
 
-            });
+                    $("html, body").animate({
+                        scrollTop: $current.offset().top - 50
+                    }, 1);
 
-            $current.find("a[data-issue-key]").live('click', newTabHandler);
+                });
 
-            // Initialize the autocomplete share field.
-            $("input#d-share").autocomplete({
-                source: function( request, response ) {
-                    $.ajax({
-                        url: "/rest/prototype/1/search/user-or-group.json",
-                        dataType: "json",
-                        data: {
-                            "max-results": 10,
-                            "query": request.term
-                        },
-                        success: function( data ) {
-                            var results = $.map(data.result, function(elm) { return {label: elm.title , value: elm.username} });
-                            response( results );
-                        }
-                    });
-                },
-                minLength: 2,
-                select: function( event, ui ) {
-                    AJS.log( ui.item ?
-                    "Selected: " + ui.item.label :
-                    "Nothing selected, input was " + this.value);
-                },
-                open: function() {
-                    $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
-                },
-                close: function() {
-                    $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
-                }
-            });
+                $current.find("a[data-issue-key]").live('click', newTabHandler);
 
-            $("button#share").click(function(evt) {
-                var $shareInput = $current.find("input#d-share");
-                var shareTo = $shareInput.val();
+                // Initialize the autocomplete share field.
+                $current.find("input#d-share").autocomplete({
+                    source: function( request, response ) {
+                        $.ajax({
+                            url: "/rest/prototype/1/search/user-or-group.json",
+                            dataType: "json",
+                            data: {
+                                "max-results": 10,
+                                "query": request.term
+                            },
+                            success: function( data ) {
+                                var results = $.map(data.result, function(elm) { return {label: elm.title , value: elm.username} });
+                                response( results );
+                            }
+                        });
+                    },
+                    minLength: 2,
+                    select: function( event, ui ) {
+                        AJS.log( ui.item ?
+                        "Selected: " + ui.item.label :
+                        "Nothing selected, input was " + this.value);
+                    },
+                    open: function() {
+                        $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+                    },
+                    close: function() {
+                        $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+                    }
+                });
 
-                if (shareTo) {
-                    $.ajax({
-                        url: "/rest/jirasearch/latest/share",
-                        cache: false,
-                        type: "POST",
-                        dataType: "json",
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            username: encodeURIComponent(shareTo),
-                            issue: issueKey
-                        }),
-                        success: function () {
-                            $shareInput.val("");
-                            require(['aui/flag'], function (flag) {
-                                flag({
-                                    type: "success",
-                                    title: "",
-                                    close: "auto",
-                                    body: "<span class=\"aui-icon aui-icon-small aui-iconfont-approve\" style=\"color: green;\"></span> Shared!"
+                $current.find("button#share").click(function(evt) {
+                    var $shareInput = $current.find("input#d-share");
+                    var shareTo = $shareInput.val();
+
+                    if (shareTo) {
+                        $.ajax({
+                            url: "/rest/jirasearch/latest/share",
+                            cache: false,
+                            type: "POST",
+                            dataType: "json",
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                username: encodeURIComponent(shareTo),
+                                issue: issueKey
+                            }),
+                            success: function () {
+                                $shareInput.val("");
+                                require(['aui/flag'], function (flag) {
+                                    flag({
+                                        type: "success",
+                                        title: "",
+                                        close: "auto",
+                                        body: "<span class=\"aui-icon aui-icon-small aui-iconfont-approve\" style=\"color: green;\"></span> Shared!"
+                                    });
                                 });
-                            });
-                        },
-                        timeout: 30000
-                    });
-                }
-            });
+                            },
+                            timeout: 30000
+                        });
+                    }
+                });
+            }
+
         });
 
         inlineDialog.find("button.close-dialog-button").live("click", function() {
