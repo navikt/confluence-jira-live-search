@@ -25,3 +25,15 @@ label.label-view {
     font-weight: bold;
     color: #c6dbef;
 }
+
+.ui-menu-item > a.ui-corner-all {
+    display: block;
+    font-size: 12px;
+    padding: 3px 15px;
+    clear: both;
+    font-weight: normal;
+    line-height: 18px;
+    color: #555555;
+    white-space: nowrap;
+    text-decoration: none;
+}

@@ -416,8 +416,18 @@ function initializeTemplate() {
                 "Selected: " + ui.item.label :
                 "Nothing selected, input was " + this.value);
             },
-            open: function() {
+            open: function( event, ui ) {
                 $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+                var $input = $(event.target);
+                var $results = $input.autocomplete("widget");
+                var scrollTop = $(window).scrollTop();
+                var top = $results.position().top;
+                var height = $results.outerHeight();
+                if (top + height > $(window).innerHeight() + scrollTop) {
+                    newTop = top - height - $input.outerHeight();
+                    if (newTop > scrollTop)
+                        $results.css("top", newTop + "px");
+                }
             },
             close: function() {
                 $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
