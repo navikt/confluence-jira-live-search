@@ -91,7 +91,7 @@ AJS.toInit(function ($) {
                     searchInFieldsNames: (searchFieldNamesArray.isEmpty() ? null : searchFieldNamesArray),
                     fields: (tableFieldsArray.isEmpty() ? null : tableFieldsArray),
                     filterFields: (filterFieldsArray.isEmpty() ? null : filterFieldsArray),
-                    maxResults: 300,
+                    maxResults: 500,
                     expand: ["names"]
                 }),
                 success: function (data) {
@@ -104,7 +104,11 @@ AJS.toInit(function ($) {
                     var msg = "";
 
                     if (jqXHR.status === 400) {
-                        msg = "Feil i JIRA spørringen!"
+                        errorThrown = "Teknisk feil";
+                        msg = "Feil i JIRA spørringen."
+                    } else if (errorThrown === "timeout") {
+                        errorThrown = "Timeout";
+                        msg = "Spørringen mot JIRA tok for langt tid. Vennligst bruk filtre og prøv igjen.";
                     } else {
                         msg = jqXHR.responseText;
                     }
