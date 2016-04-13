@@ -1,9 +1,9 @@
 package no.nav.kiv.confluence.labs.rest;
 
 import com.atlassian.applinks.api.ApplicationLinkRequest;
-import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.confluence.util.HtmlUtil;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.ResponseException;
@@ -12,6 +12,8 @@ import com.google.common.collect.Lists;
 import no.nav.kiv.confluence.labs.utils.RequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -29,14 +31,17 @@ import java.util.List;
 @Path("search")
 @Produces({MediaType.APPLICATION_JSON})
 @Consumes({MediaType.APPLICATION_JSON})
+@Controller
 public class MyRestResource {
 
     private static final Logger log = LoggerFactory.getLogger(MyRestResource.class);
 
     private RequestBuilder requestBuilder;
 
-    public MyRestResource(ApplicationLinkService applicationLinkService) {
-        this.requestBuilder = new RequestBuilder(applicationLinkService);
+    @Autowired
+    public MyRestResource(
+            @ComponentImport RequestBuilder requestBuilder) {
+        this.requestBuilder = requestBuilder;
     }
 
     @POST

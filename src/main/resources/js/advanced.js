@@ -76,7 +76,7 @@ AJS.toInit(function ($) {
             });
 
             $.ajax({
-                url: "/rest/jirasearch/latest/search",
+                url: AJS.params.baseUrl + "/rest/jirasearch/latest/search",
                 cache: false,
                 type: "POST",
                 dataType: "json",
@@ -366,7 +366,7 @@ function initializeTemplate() {
 
                     if (shareTo) {
                         $.ajax({
-                            url: "/rest/jirasearch/latest/share",
+                            url: AJS.params.baseUrl + "/rest/jirasearch/latest/share",
                             cache: false,
                             type: "POST",
                             dataType: "json",
@@ -404,7 +404,7 @@ function initializeTemplate() {
         $input.autocomplete({
             source: function( request, response ) {
                 $.ajax({
-                    url: "/rest/prototype/1/search/user-or-group.json",
+                    url: AJS.params.baseUrl + "/rest/prototype/1/search/user-or-group.json",
                     dataType: "json",
                     data: {
                         "max-results": 10,
@@ -525,7 +525,7 @@ function initializeTemplate() {
     }
 
     function initializeFields(project, issueType) {
-        $.getJSON("/rest/jirasearch/latest/search/metadata", {
+        $.getJSON(AJS.params.baseUrl + "/rest/jirasearch/latest/search/metadata", {
             projectKey: project,
             issuetypeName: issueType
         }).done(function (data) {
@@ -979,7 +979,7 @@ function initializeTemplate() {
 
     function getPageProperty(pageId, propertyName) {
         return $.ajax({
-            url: "/rest/api/content/" + pageId + "/property/" + propertyName,
+            url: AJS.params.baseUrl + "/rest/api/content/" + pageId + "/property/" + propertyName,
             cache: false,
             type: "GET",
             dataType: "json",
@@ -990,7 +990,7 @@ function initializeTemplate() {
 
     function createPageProperty(pageId, propertyName, initialValue) {
         return $.ajax({
-            url: "/rest/api/content/" + pageId + "/property/" + propertyName,
+            url: AJS.params.baseUrl + "/rest/api/content/" + pageId + "/property/" + propertyName,
             cache: false,
             type: "POST",
             dataType: "json",
@@ -1005,7 +1005,7 @@ function initializeTemplate() {
 
     function updatePageProperty(pageId, propertyId, propertyName, latestVersion, newValue) {
         return $.ajax({
-            url: "/rest/api/content/" + pageId + "/property/" + propertyName,
+            url: AJS.params.baseUrl + "/rest/api/content/" + pageId + "/property/" + propertyName,
             cache: false,
             type: "PUT",
             dataType: "json",
@@ -1025,7 +1025,7 @@ function initializeTemplate() {
 
     function getIssueFromJira(issueKey) {
         return $.ajax({
-            url: "/rest/jirasearch/latest/search",
+            url: AJS.params.baseUrl + "/rest/jirasearch/latest/search",
             cache: false,
             type: "POST",
             dataType: "json",
@@ -1039,7 +1039,7 @@ function initializeTemplate() {
 
     function getStatusesFromJIRA(projectKey) {
         return $.ajax({
-            url: "/rest/jirasearch/latest/search/metadata/statuses",
+            url: AJS.params.baseUrl + "/rest/jirasearch/latest/search/metadata/statuses",
             type: "GET",
             dataType: "json",
             contentType: 'application/json',
@@ -1051,7 +1051,7 @@ function initializeTemplate() {
 
     function getPageEditRestrictions(pageId) {
         return $.ajax({
-            url: "/rest/api/content/" + pageId + "/restriction/byOperation/update",
+            url: AJS.params.baseUrl + "/rest/api/content/" + pageId + "/restriction/byOperation/update",
             type: "GET",
             dataType: "json",
             contentType: 'application/json'

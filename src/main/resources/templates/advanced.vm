@@ -1,4 +1,4 @@
-#if ($action.remoteUser)
+#if ($action.authenticatedUser)
     $webResourceManager.requireResource("com.atlassian.auiplugin:aui-experimental-table-sortable")
     $webResourceManager.requireResource("no.nav.kiv.confluence.labs.confluence-jira-live-search:advanced-resources")
 

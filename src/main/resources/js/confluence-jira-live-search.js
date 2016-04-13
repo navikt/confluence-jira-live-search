@@ -22,7 +22,7 @@ AJS.toInit(function ($) {
             var count = 1;
 
             $.ajax({
-                url: "/rest/jirasearch/latest/search",
+                url: AJS.params.baseUrl + "/rest/jirasearch/latest/search",
                 cache: false,
                 type: "POST",
                 dataType: "json",
