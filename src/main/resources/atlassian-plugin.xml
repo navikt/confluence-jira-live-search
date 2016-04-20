@@ -61,6 +61,13 @@
         <resource type="download" name="advanced-soy.js" location="/soy/advanced.soy"/>
     </web-resource>
 
+    <web-resource key="custom-parameters" name="Implementation of custom parameters">
+        <resource type="download" name="customparameters.js" location="js/customparameters.js"/>
+        <dependency>com.atlassian.auiplugin:aui-select2</dependency>
+        <context>editor</context>
+        <param name="batch">false</param>
+    </web-resource>
+
     <macro name="jiralivesearch"
            i18n-name-key="jiralivesearch-macro.name"
            class="no.nav.kiv.confluence.labs.macros.JiraLiveSearchMacro"
@@ -77,8 +84,8 @@
         <category name="external-content"/>
 
         <parameters>
-            <parameter name="project" type="string" multiple="true" required="true" />
-            <parameter name="issueType" type="string" required="true" />
+            <parameter name="project" type="enum" required="true" />
+            <parameter name="issueType" type="enum" required="true" />
             <parameter name="placeholder" type="string"/>
             <parameter name="size" type="enum" default="medium">
                 <value name="medium"/>
