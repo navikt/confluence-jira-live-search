@@ -6,10 +6,11 @@
     <parent>
         <groupId>no.nav.kiv.confluence.labs</groupId>
         <artifactId>confluence-parent</artifactId>
-        <version>2.4-SNAPSHOT</version>
+        <version>2.3.1</version>
     </parent>
 
     <artifactId>confluence-jira-live-search</artifactId>
+  <version>2.3</version>
     <name>NAV IKT :: JIRA Live Search for Confluence</name>
     <description>Introducing a new way to interact with JIRA by using a live search input field.</description>
     <packaging>atlassian-plugin</packaging>
@@ -171,7 +172,7 @@
     </build>
 
     <properties>
-        <nav-commons.version>2.4-SNAPSHOT</nav-commons.version>
+        <nav-commons.version>2.3.1</nav-commons.version>
         <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
     </properties>
 </project>
