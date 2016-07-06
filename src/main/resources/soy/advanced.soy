@@ -16,10 +16,11 @@
 * Creates a new Tab Pane
 * @param issueKey
 * @param dialogId
+* @param applink
 */
 {template .newTabPane}
 <div class="tabs-pane" id="tabs-{$issueKey}-{$dialogId}">
-   <form class="aui aui-dd-parent" target="_blank" method="link" action="http://jira.adeo.no/browse/{$issueKey}">
+   <form class="aui aui-dd-parent" target="_blank" method="link" action="{$applink}/browse/{$issueKey}">
        <div id="dialog-content-{$issueKey}">
            <span class="aui-icon aui-icon-large aui-icon-wait"></span> Loading data...
        </div>
@@ -63,6 +64,7 @@
 * @param issues
 * @param fieldNames
 * @param totalFound
+* @param applink
 */
 {template .table}
 {if length(keys($issues)) != 0}
@@ -85,7 +87,7 @@
     <tr>
         {foreach $header in $fieldKeys}
             {if $header == 'key'}
-                <td class="confluenceTd" style="word-wrap: break-word;"><a href="http://jira.adeo.no/browse/{$issue.key}" target="_new">{$issue.key}</a></td>
+                <td class="confluenceTd" style="word-wrap: break-word;"><a href="{$applink}/browse/{$issue.key}" target="_new">{$issue.key}</a></td>
             {elseif $header == 'summary'}
                 <td class="confluenceTd" style="word-wrap: break-word;">
                     <a id="inlineDialog_{$issue.id}" class="show-lightbox" aria-controls="lightbox-dialog_{$issue.key}" data-aui-trigger> <span class="aui-icon aui-icon-small aui-iconfont-devtools-file">Open</span> {$issue.fields[$header]}</a>
@@ -101,7 +103,7 @@
                                         </li>
                                     </ul>
                                     <div class="tabs-pane active-pane" id="tabs-{$issue.key}-{$issue.dialogId}">
-                                       <form class="aui aui-dd-parent" target="_blank" method="link" action="http://jira.adeo.no/browse/{$issue.key}">
+                                       <form class="aui aui-dd-parent" target="_blank" method="link" action="{$applink}/browse/{$issue.key}">
                                            <div id="dialog-content-{$issue.key}">
                                                <span class="aui-icon aui-icon-large aui-icon-wait"></span> Loading data...
                                            </div>

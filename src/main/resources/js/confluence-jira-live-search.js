@@ -7,6 +7,7 @@ AJS.toInit(function ($) {
             $searchButton = $form.find('.aui-icon.aui-iconfont-search'),
             searchField = $('#search').val(),
             project = $('#project').val(),
+            applink = $('#applink').val(),
             issueType = $('#issueType').val(),
             fields = ["summary", "Tekst bokmål", "Tekst nynorsk", "Brukt i mal", "Eier"];
 
@@ -36,7 +37,7 @@ AJS.toInit(function ($) {
                 success: function (data) {
                     $.each($.parseJSON(data.message).issues, function (key, val) {
 
-                        output += '<td><a href="http://jira.adeo.no/browse/' + val.key + '" target="_new">' + val.key + '</a></td>'
+                        output += '<td><a href="' + applink + '/browse/' + val.key + '" target="_new">' + val.key + '</a></td>'
                         output += '<td>' + val.fields.summary + '</td>'
                         output += '<td>' + escapeHtml(val.fields.customfield_15213).replace(/(?:\r\n|\r|\n)/g, '<br />') + '</td>'
                         output += '<td>' + val.fields.customfield_15214 + '</td>'
