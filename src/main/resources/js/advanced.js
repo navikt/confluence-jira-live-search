@@ -9,7 +9,8 @@ AJS.toInit(function ($) {
 
     var project = $('#project').val(),
         issueType = $('#issueType').val(),
-        globalID = $('input#tableId').val();
+        globalID = $('input#tableId').val(),
+        applink = $('input#applink').val();
 
     var $resultsTableDiv = $('div#table-' + globalID),
         $spinnerIcon = $('span.spinner-icon'),
@@ -165,7 +166,8 @@ AJS.toInit(function ($) {
                 fieldKeys: tableFieldsArray,
                     issues: jiraIssues,
                     fieldNames: fieldNames,
-                    totalFound: message.total
+                    totalFound: message.total,
+                    applink: applink
             });
 
         $resultsTableDiv.html(tableContent);
@@ -469,7 +471,8 @@ function initializeTemplate() {
 
                 var newTabPane = NAV.KIV.Templates.LiveSearch.newTabPane({
                     "issueKey": issueKey,
-                    "dialogId": dialogId
+                    "dialogId": dialogId,
+                    "applink": applink
                 });
                 tabPanes.append(newTabPane);
                 AJS.tabs.setup();
@@ -1203,7 +1206,7 @@ function initializeTemplate() {
         // Toggle children on click.
         function click(d) {
             if (d.key) {
-                window.open("http://jira.adeo.no/browse/" + d.key, '_blank');
+                window.open(applink + "/browse/" + d.key, '_blank');
             } else {
                 if (d.children) {
                     d._children = d.children;

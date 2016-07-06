@@ -7,10 +7,13 @@ import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
+import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.renderer.RenderContext;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
+import no.nav.kiv.confluence.labs.utils.RequestBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,11 +25,19 @@ import java.util.UUID;
  * User: Michal J. Sladek
  * Date: 05.09.2015
  */
+@Scanned
 public class JiraLiveSearchMacro extends BaseMacro implements Macro {
 
     private static final Logger LOG = LoggerFactory.getLogger(JiraLiveSearchMacro.class);
 
     public static final String MEDIUM_SIZE = "medium";
+
+    private RequestBuilder requestBuilder;
+
+    public JiraLiveSearchMacro(@ComponentImport RequestBuilder requestBuilder) {
+        super();
+        this.requestBuilder = requestBuilder;
+    }
 
     @Override
     public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException {
@@ -49,6 +60,8 @@ public class JiraLiveSearchMacro extends BaseMacro implements Macro {
         contextMap.put("placeholder", placeholder);
         final String advanced = parameters.get("advanced");
         contextMap.put("advanced", advanced);
+
+        contextMap.put("applink", requestBuilder.getApplicationLinkHost());
 
         if(Boolean.parseBoolean(advanced)) {
             return VelocityUtils.getRenderedTemplate("/templates/advanced.vm", contextMap);

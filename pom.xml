@@ -16,7 +16,6 @@
     <packaging>atlassian-plugin</packaging>
 
     <dependencies>
-
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence-plugins-platform-pom</artifactId>
@@ -179,7 +178,7 @@
     </scm>
 
     <properties>
-        <nav-commons.version>2.3.1</nav-commons.version>
+        <nav-commons.version>2.3.2</nav-commons.version>
         <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
     </properties>
 </project>
