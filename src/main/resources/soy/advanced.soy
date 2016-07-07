@@ -66,7 +66,7 @@
 * @param totalFound
 * @param applink
 */
-{template .table}
+{template .table autoescape="false"}
 {if length(keys($issues)) != 0}
 <div id="search-statistics">{$totalFound} issues found.</div>
 <table id="search-jira-results" class="confluenceTable" style="table-layout: fixed; width: 100%; margin-top: 25px;">
@@ -140,7 +140,7 @@
                 {/if}
                 </td>
             {else}
-                {let $fieldValue: $issue.fields[$header] /}
+                {let $fieldValue: $issue.renderedFields[$header] or $issue.fields[$header] /}
                 {if $fieldValue == null}
                     <td class="confluenceTd" style="word-wrap: break-word;">&nbsp;</td>
                 {elseif $fieldValue.value != null}
