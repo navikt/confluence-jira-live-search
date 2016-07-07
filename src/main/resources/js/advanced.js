@@ -93,7 +93,7 @@ AJS.toInit(function ($) {
                     fields: (tableFieldsArray.isEmpty() ? null : tableFieldsArray),
                     filterFields: (filterFieldsArray.isEmpty() ? null : filterFieldsArray),
                     maxResults: 500,
-                    expand: ["names"]
+                    expand: ["names", "renderedFields"]
                 }),
                 success: function (data) {
                     buildTableFromData(data, tableFieldsArray);
