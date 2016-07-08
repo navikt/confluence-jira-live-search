@@ -22,42 +22,53 @@
                         'confluence.extra.livesearch.label')</span>
                 </button>
             #end
-            <input type="hidden" id="project" name="project" value="$!{project}" />
+            <input type="hidden" id="project" name="project" value="$!{project}"/>
             <input type="hidden" id="issueType" name="issueType" value="$!{issueType}"/>
             <input type="hidden" id="tableId" name="tableId" value="$!{id}"/>
             <input type="hidden" id="applink" name="applink" value="$!{applink}"/>
 
         </fieldset>
-
-        <button id="configuration-toggle" type="button" class="aui-button aui-button-link hidden">Advanced</button>
+    </form>
+</div>
+<div id="configuration">
+    <form class="aui aui-dd-parent" name="configurationForm" onsubmit="return false;">
+        <button id="configuration-toggle" type="button" class="aui-button hidden">Advanced Configuration</button>
         <div class="toggle" style="display: none;">
             <h3>Search configuration</h3>
             <fieldset>
                 <div class="field-group">
                     <label for="select-search-fields">Search in:</label>
-                    <select class="multi-select" size="1" multiple="multiple" id="select-search-fields" name="select-search-fields">
+                    <select class="multi-select" size="1" multiple="multiple" id="select-search-fields"
+                            name="select-search-fields">
                     </select>
+
                     <div class="description">Select the JIRA fields you want to search in.</div>
                 </div>
 
                 <div class="field-group">
                     <label for="select-filter-fields">Filter in:</label>
-                    <select class="multi-select" size="1" multiple="multiple" id="select-filter-fields" name="select-filter-fields">
+                    <select class="multi-select" size="1" multiple="multiple" id="select-filter-fields"
+                            name="select-filter-fields">
                     </select>
+
                     <div class="description">Select the JIRA fields you want to filter in.</div>
                 </div>
 
                 <div class="field-group">
                     <label for="select-table-fields">Table fields:</label>
-                    <select class="multi-select" size="1" multiple="multiple" id="select-table-fields" name="select-table-fields">
+                    <select class="multi-select" size="1" multiple="multiple" id="select-table-fields"
+                            name="select-table-fields">
                     </select>
+
                     <div class="description">Select the JIRA fields you want to display in the results table.</div>
                 </div>
 
                 <div class="field-group">
                     <label for="sort-table-fields">Sort table fields:</label>
                     <ul id="sort-table-fields"></ul>
-                    <div class="description">Select the display order in the table. Drag and drop the elements to change order.</div>
+                    <div class="description">Select the display order in the table. Drag and drop the elements to change
+                        order.
+                    </div>
                 </div>
             </fieldset>
 
@@ -67,16 +78,21 @@
                     <label for="select-rename-fields">Rename field:<span class="aui-icon icon-required"> required</span></label>
                     <select class="multi-select" size="1" id="select-rename-fields" name="select-rename-fields">
                     </select>
+
                     <div class="description">Select the JIRA fields you want to rename.</div>
                 </div>
 
                 <div class="field-group">
                     <label for="input-rename-fields">to:<span class="aui-icon icon-required"> required</span></label>
-                    <input class="text" type="text" id="input-rename-fields" name="input-rename-fields" title="new name">
+                    <input class="text" type="text" id="input-rename-fields" name="input-rename-fields"
+                           title="new name">
+
                     <div class="description">Write the new name of the field.</div>
                 </div>
 
-                <button id="button-rename-fields" class="aui-button"><span class="aui-icon aui-icon-small aui-iconfont-list-add">Add </span> Add</button>
+                <button id="button-rename-fields" class="aui-button"><span
+                        class="aui-icon aui-icon-small aui-iconfont-list-add">Add </span> Add
+                </button>
 
                 <table class="aui">
                     <thead>
@@ -95,18 +111,20 @@
             <fieldset>
                 <div class="field-group">
                     <label for="lightbox-template">Handlebars template</label>
-                    <textarea class="textarea" name="lightbox-template" id="lightbox-template" placeholder="Your lightbox template here..."></textarea>
+                    <textarea class="textarea" name="lightbox-template" id="lightbox-template"
+                              placeholder="Your lightbox template here..."></textarea>
                 </div>
 
-                <button id="button-save-template" style="float: right;" class="aui-button"><span class="aui-icon aui-icon-small aui-iconfont-table-paste-row">Save </span> Save</button>
+                <button id="button-save-template" style="float: right;" class="aui-button"><span
+                        class="aui-icon aui-icon-small aui-iconfont-table-paste-row">Save </span> Save
+                </button>
             </fieldset>
         </div>
     </form>
-
 </div>
 <br/>
-<button id="filters-toggle" type="button" class="aui-button aui-button-link hidden">Filter</button>
-<div id="search-filters" style="width: 100%; display: none;")>
+<button id="filters-toggle" type="button" class="aui-button aui-button-primary hidden">Filter</button>
+<div id="search-filters" style="width: 100%; display: none;" )>
     <form class="aui top-label" name="filterform" onsubmit="return false;">
         <fieldset id="filterSection" class="top-label">
         </fieldset>
@@ -118,6 +136,7 @@
     <p class="title">
         <strong>Log in!</strong>
     </p>
+
     <p>Du må loge in til kunne bruke funksjonaliteten på denne sida!</p>
 </div>
 #end
