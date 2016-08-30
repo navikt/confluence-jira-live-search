@@ -90,8 +90,8 @@
                 <td class="confluenceTd" style="word-wrap: break-word;"><a href="{$applink}/browse/{$issue.key}" target="_new">{$issue.key}</a></td>
             {elseif $header == 'summary'}
                 <td class="confluenceTd" style="word-wrap: break-word;">
-                    <a id="inlineDialog_{$issue.id}" class="show-lightbox" aria-controls="lightbox-dialog_{$issue.key}" data-aui-trigger> <span class="aui-icon aui-icon-small aui-iconfont-devtools-file">Open</span> {$issue.fields[$header]}</a>
-                    <aui-inline-dialog2 id="lightbox-dialog_{$issue.key}" data-dialog-id="{$issue.dialogId}" style="width: 900px;" class="aui-layer aui-inline-dialog" data-aui-alignment="left top" data-aui-responds-to="toggle" aria-hidden="true" data-aui-persistent="true">
+                    <a data-aui-trigger id="inlineDialog_{$issue.id}" class="show-lightbox" aria-controls="lightbox-dialog_{$issue.key}" > <span class="aui-icon aui-icon-small aui-iconfont-devtools-file">Open</span> {$issue.fields[$header]}</a>
+                    <aui-inline-dialog id="lightbox-dialog_{$issue.key}" data-dialog-id="{$issue.dialogId}" style="width: 900px;"  alignment="left top" responds-to="toggle" aria-hidden="true" persistent>
                             <div class="aui-inline-dialog-contents">
                                 <div>
                                     <button aria-dialog-id="lightbox-dialog_{$issue.key}" class="aui-button close-dialog-button" style="float: right;"><span class="aui-icon aui-icon-small aui-iconfont-close-dialog">Close</span></button>
@@ -120,7 +120,7 @@
                                 </div>
 
                             </div>
-                    </aui-inline-dialog2>
+                    </aui-inline-dialog>
                 </td>
             {elseif $header == 'updated'}
                 <td class="confluenceTd" style="word-wrap: break-word;">{$issue.fields['updated']}</td>

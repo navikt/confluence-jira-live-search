@@ -129,7 +129,7 @@ AJS.toInit(function ($) {
 
     function clearTable() {
         $resultsTableDiv.empty();
-        $("aui-inline-dialog2").remove();
+        $("aui-inline-dialog").remove();
     }
 
     function clearErrors() {
@@ -321,9 +321,8 @@ function initializeTemplate() {
     }
 
     function initializeLightbox() {
-        var inlineDialog = $('aui-inline-dialog2.aui-inline-dialog');
-        inlineDialog.live("aui-layer-show", function(e) {
-
+        var inlineDialog = $('aui-inline-dialog'); 
+        inlineDialog.live("aui-show", function(e) {
             var $current = $(this),
                 id = $current.prop('id'),
                 dialogId = $current.attr('data-dialog-id'),
@@ -394,11 +393,10 @@ function initializeTemplate() {
                     }
                 });
             }
-
         });
-
+        
         inlineDialog.find("button.close-dialog-button").live("click", function() {
-            document.querySelector("aui-inline-dialog2#" + $(this).attr("aria-dialog-id")).hide();
+            document.querySelector("aui-inline-dialog#" + $(this).attr("aria-dialog-id")).open = false;
         });
     }
 
@@ -448,8 +446,8 @@ function initializeTemplate() {
 
         var $context = $(this);
         var issueKey = $context.attr('data-issue-key'),
-            dialogId = $context.closest("aui-inline-dialog2").attr('data-dialog-id'),
-            tabPanes = $context.closest("aui-inline-dialog2 div.aui-tabs"),
+            dialogId = $context.closest("aui-inline-dialog").attr('data-dialog-id'),
+            tabPanes = $context.closest("aui-inline-dialog div.aui-tabs"),
             tabMenu = tabPanes.find("ul.tabs-menu"),
             tabSelector = tabMenu.find("a[href=#tabs-" + issueKey + "-" + dialogId + "]");
 
@@ -1096,7 +1094,7 @@ function initializeTemplate() {
         var diagonal = d3.svg.diagonal()
             .projection(function(d) { return [d.y, d.x]; });
 
-        var svg = d3.select("aui-inline-dialog2 div#tabs-" + issueKey + "-" + dialogId + " div#dialog-content-" + issueKey).append("svg")
+        var svg = d3.select("aui-inline-dialog div#tabs-" + issueKey + "-" + dialogId + " div#dialog-content-" + issueKey).append("svg")
             .attr("width", width + margin.left + margin.right)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -1112,7 +1110,7 @@ function initializeTemplate() {
 
             var height = Math.max(300, nodes.length * barHeight + margin.top + margin.bottom);
 
-            d3.select("aui-inline-dialog2 div#tabs-" + issueKey + "-" + dialogId + " div#dialog-content-" + issueKey + " svg").transition()
+            d3.select("aui-inline-dialog div#tabs-" + issueKey + "-" + dialogId + " div#dialog-content-" + issueKey + " svg").transition()
                 .duration(duration)
                 .attr("height", height);
 
