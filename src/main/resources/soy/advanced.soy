@@ -68,13 +68,14 @@
 */
 {template .table autoescape="false"}
 {if length(keys($issues)) != 0}
+
 <div id="search-statistics">{$totalFound} issues found.</div>
 <table id="search-jira-results" class="confluenceTable" style="table-layout: fixed; width: 100%; margin-top: 25px;">
     <thead>
     <tr>
     {foreach $header in $fieldKeys}
         {if $header == 'key'}
-            <th class="confluenceTh">Key</th>
+            <th class="confluenceTh">{$fieldNames[$header]}</th>
         {else}
             <th class="confluenceTh">{$fieldNames[$header]}</th>
         {/if}
