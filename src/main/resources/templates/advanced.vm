@@ -26,7 +26,6 @@
             <input type="hidden" id="issueType" name="issueType" value="$!{issueType}"/>
             <input type="hidden" id="tableId" name="tableId" value="$!{id}"/>
             <input type="hidden" id="applink" name="applink" value="$!{applink}"/>
-
         </fieldset>
     </form>
 </div>
