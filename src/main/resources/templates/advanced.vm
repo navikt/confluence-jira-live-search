@@ -133,10 +133,9 @@
 #else
 <div class="aui-message aui-message-warning">
     <p class="title">
-        <strong>Log in!</strong>
+        <strong>Logg inn!</strong>
     </p>
-
-    <p>Du må loge in til kunne bruke funksjonaliteten på denne sida!</p>
+    <p>Du må logge inn for å bruke funksjonaliteten!</p>
 </div>
 #end
 
