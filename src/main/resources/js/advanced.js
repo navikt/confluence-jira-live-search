@@ -160,6 +160,8 @@ AJS.toInit(function ($) {
             issue.dialogId = Math.random().toString(36).substring(2, 8)
         });
 
+        fieldNames['key'] = "Key";
+
         $.when(renameFieldNames(fieldNames).then(function() {
 
             var tableContent = NAV.KIV.Templates.LiveSearch.table({
