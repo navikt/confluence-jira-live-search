@@ -14,7 +14,8 @@
 
     <!-- add our web resources -->
     <web-resource key="confluence-jira-live-search-resources" name="confluence-jira-live-search Web Resources">
-        <dependency>com.atlassian.auiplugin:ajs</dependency>
+       	<dependency>com.atlassian.auiplugin:ajs</dependency>
+        <dependency>com.atlassian.auiplugin:aui-inline-dialog2 </dependency>
         <dependency>no.nav.kiv.confluence.labs.confluence-commons:sugarjs</dependency>
         <dependency>no.nav.kiv.confluence.labs.confluence-commons:confluence-commons-js</dependency>
         <transformation extension="less">
