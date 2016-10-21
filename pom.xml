@@ -120,7 +120,7 @@
                         <Export-Package>
                         </Export-Package>
                         <Import-Package>
-                            no.nav.kiv.confluence.labs.api;resolution:=required;version="2.3.3",
+                            no.nav.kiv.confluence.labs.api;resolution:=required;version="2.3.4",
                             *
                         </Import-Package>
                     </instructions>
