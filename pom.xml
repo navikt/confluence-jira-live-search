@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.kiv.confluence.labs</groupId>
         <artifactId>confluence-ext-parent</artifactId>
-        <version>5.9.6</version>
+        <version>5.10.7.0</version>
     </parent>
 
     <artifactId>confluence-jira-live-search</artifactId>
@@ -37,7 +37,6 @@
             <artifactId>confluence</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- WIRED TEST RUNNER DEPENDENCIES -->
         <dependency>
             <groupId>com.atlassian.plugins</groupId>
             <artifactId>atlassian-plugins-osgi-testrunner</artifactId>
@@ -94,14 +93,8 @@
         <dependency>
             <groupId>com.atlassian.plugin</groupId>
             <artifactId>atlassian-spring-scanner-annotation</artifactId>
-            <scope>compile</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.atlassian.plugin</groupId>
-            <artifactId>atlassian-spring-scanner-runtime</artifactId>
-            <scope>runtime</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -118,8 +111,6 @@
                             <artifactId>confluence-commons</artifactId>
                         </pluginDependency>
                     </pluginDependencies>
-
-                    <compressResources>true</compressResources>
                     <productVersion>${confluence.version}</productVersion>
                     <productDataVersion>${confluence.data.version}</productDataVersion>
                     <instructions>
@@ -129,10 +120,8 @@
                         <Export-Package>
                         </Export-Package>
                         <Import-Package>
-                            org.springframework.osgi.*;resolution:="optional",
-                            org.eclipse.gemini.blueprint.*;resolution:="optional",
-                            com.atlassian.plugin.osgi.bridge.external,
-                            *;resolution:=optional
+                            no.nav.kiv.confluence.labs.api;resolution:=required;version="2.3.3",
+                            *
                         </Import-Package>
                     </instructions>
                 </configuration>
@@ -140,25 +129,6 @@
             <plugin>
                 <groupId>com.atlassian.plugin</groupId>
                 <artifactId>atlassian-spring-scanner-maven-plugin</artifactId>
-                <version>1.2.9</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>atlassian-spring-scanner</goal>
-                        </goals>
-                        <phase>process-classes</phase>
-                    </execution>
-                </executions>
-                <configuration>
-                    <!--
-                    <scannedDependencies>
-                        <dependency>
-                            <groupId>com.atlassian.plugin</groupId>
-                            <artifactId>atlassian-spring-scanner-external-jar</artifactId>
-                        </dependency>
-                    </scannedDependencies>
-                    <verbose>false</verbose>-->
-                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -178,7 +148,7 @@
     </scm>
 
     <properties>
-        <nav-commons.version>2.3.2</nav-commons.version>
+        <nav-commons.version>2.3.4</nav-commons.version>
         <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
     </properties>
 </project>

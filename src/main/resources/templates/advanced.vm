@@ -64,7 +64,7 @@
 
                 <div class="field-group">
                     <label for="sort-table-fields">Sort table fields:</label>
-                    <ul id="sort-table-fields"></ul>
+                    <ul id="sort-table-fields" class="ui-sortable" style="list-style-type: none; padding-left: 0px;"></ul>
                     <div class="description">Select the display order in the table. Drag and drop the elements to change
                         order.
                     </div>

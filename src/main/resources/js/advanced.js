@@ -616,7 +616,7 @@ function initializeTemplate() {
                         }
                     });
                    if (field) {
-                       $ul.append("<li data-value=\"{1}\">{2}</li>".assign(field.schema.customId || field.schema.system, field.name));
+                       $ul.append("<li class=\"ui-state-default ui-sortable-handle\" data-value=\"{1}\" style=\"padding: 5px; margin:0px 1px 0px 1px; margin-bottom: 1px;\"><span class=\"aui-icon aui-icon-small aui-iconfont-drag-vertical\"></span>{2}</li>".assign(field.schema.customId || field.schema.system, field.name));
                    }
                 });
                 $ul.sortable({"forcePlaceholderSize": true, "items": "li"}).bind('sortupdate', function(evt, ui) {

@@ -9,7 +9,7 @@ import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import no.nav.kiv.confluence.labs.utils.RequestBuilder;
+import no.nav.kiv.confluence.labs.api.RequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
