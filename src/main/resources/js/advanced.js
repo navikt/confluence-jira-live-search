@@ -888,7 +888,7 @@ function initializeTemplate() {
                         if ($.inArray(child.id, fieldsFromCookieArray) >= 0) {
                             selected = "selected";
                         }
-                        fieldOpts.push({"id": child.id, "value": child.value, "selected": selected});
+                        fieldOpts.push({"id": child.id, "value":(value.value || value.name) + " -- "+ child.value, "selected": selected});
                     });
                 }
             });
@@ -901,6 +901,13 @@ function initializeTemplate() {
                 fieldOpts.push({"id": value.id, "value": value.name, "selected": selected});
             });
         }
+        
+        fieldOpts.sort(function(a,b) {
+        	if(a.value<b.value)
+        		return -1;
+        	else
+        		return 1;
+        });
         var filterSelectField = NAV.KIV.Templates.LiveSearch.filterField({
             "fieldId": fieldId,
             "fieldLabel": fieldLabel,
@@ -957,7 +964,11 @@ function initializeTemplate() {
             }
             if (!isNaN(field)) {
                 selectedValues.push(parseInt(field));
-            } else {
+            } 
+            else if(field.split(' -- ')[1] != null) {  // get filter like "IT-avdelingen - Prosjektseksjonen -- Kontor for prosjektgjennomføring"
+            	selectedValues.push(field.split(' -- ')[1]);
+            }
+            else {
                 selectedValues.push(field);
             }
         });
