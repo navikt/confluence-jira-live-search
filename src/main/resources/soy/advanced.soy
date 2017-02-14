@@ -109,10 +109,13 @@
                                                <span class="aui-icon aui-icon-large aui-icon-wait"></span> Loading data...
                                            </div>
                                            <div class="inline-block" style="display: inline;">
-                                                <button type="button" id="share-{$issue.key}" class="aui-button share" style="margin-right: 10px;"><span class="aui-icon aui-icon-small aui-iconfont-share">Share </span></button>
-                                                 <div class="sharePane" style="display: none; width: 350px;">
-                                                   <input class="text" type="text" name="d-share" title="Del begrepet med..." placeholder="Skriv navn">
-                                                   <button type="button" data-issue-id="{$issue.key}" class="aui-button share-submit" style="margin-right: 10px;">Del</button>
+                                                <button type="button" id="share-{$issue.key}" class="aui-button share" style="margin-right: 10px;float:left;"><span class="aui-icon aui-icon-small aui-iconfont-share">Share </span></button>
+                                                 <div class="sharePane" style="display: none; width: 250px;">
+                                                   <input class="text" type="text" name="d-share" title="Del begrepet med..." placeholder="Skriv navn" style="width: 100%;">
+                                                   <textarea class="textarea long-field" name="d-share-comments" 
+            												placeholder="kommentarfelt for deling av begreper" style="width: 100%;"  rows="5">   
+            									   </textarea>
+                                                   <button type="button" data-issue-id="{$issue.key}" class="aui-button share-submit" style="float:right;">Del</button>
                                                  </div>
                                                 <button class="aui-button" style="float: right;" type="submit" target="_blank"><span class="aui-icon aui-icon-small aui-iconfont-jira">Open </span> &#197;pne i JIRA</button>
                                             </div>

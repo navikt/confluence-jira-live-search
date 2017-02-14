@@ -364,7 +364,9 @@ function initializeTemplate() {
 
                 $current.find("button.share-submit").live('click', function() {
                     var $shareInput = $(this).siblings("input[name='d-share']");
+                    var $shareMsg = $(this).siblings("textarea[name='d-share-comments']"); 
                     var shareTo = $shareInput.val();
+                    var shareMsg = $shareMsg.val();
                     var self = $(this);
 
                     if (shareTo) {
@@ -376,10 +378,12 @@ function initializeTemplate() {
                             contentType: 'application/json',
                             data: JSON.stringify({
                                 username: encodeURIComponent(shareTo),
+                                message:shareMsg,
                                 issue: self.attr('data-issue-id')
                             }),
                             success: function () {
                                 $shareInput.val("");
+                                $shareMsg.val("");
                                 require(['aui/flag'], function (flag) {
                                     flag({
                                         type: "success",
