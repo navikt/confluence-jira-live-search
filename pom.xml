@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>confluence-jira-live-search</artifactId>
-    <version>2.4.4-SNAPSHOT</version>
+    <version>2.4.5-SNAPSHOT</version>
     <name>NAV IT :: JIRA Live Search for Confluence</name>
     <description>Introducing a new way to interact with JIRA by using a live search input field.</description>
     <packaging>atlassian-plugin</packaging>
@@ -99,6 +99,11 @@
 
     <build>
         <plugins>
+           <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+            </plugin>
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-confluence-plugin</artifactId>
